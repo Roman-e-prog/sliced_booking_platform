@@ -1,0 +1,20 @@
+<div class="container">
+    <div class="navbar">
+    <app-navbar></app-navbar>
+    </div>
+    <div class="mobileNavbar">
+    <app-mobile-navbar></app-mobile-navbar>
+    </div>
+    <div class="contentWrapper">
+        <div class="fieldWrapper" *ngFor="let room of allRooms$ | async">
+            <a [routerLink]="['/','booking', room.roomId]" class="roomLink">
+                <img [src]="room.images[0].path" [alt]="room.roomType" class="roomImg" >
+            </a>
+            <div class="content">
+                <p class="type">{{room.roomType.split('_').join(' ')}}</p>
+                <p class="available">{{room.isAvailable ? 'Verfügbar' : 'Nicht verfügbar'}}</p>
+                <p class="price">Preis ab: {{room.pricePerNight === 0.00 ? 'Preis nicht verfügbar' : (room.pricePerNight | currency:'EUR')}}</p>
+            </div>
+        </div>
+    </div>
+</div>

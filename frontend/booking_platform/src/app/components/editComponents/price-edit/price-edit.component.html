@@ -1,0 +1,51 @@
+<div class="container">
+    <div class="headWrapper">
+        <h3 class="editHeader">Edit</h3>
+    </div>
+    <div class="priceFormWrapper">
+        <form [formGroup]="priceEditForm" (ngSubmit)="onSubmit()" class="form">
+            <div class="formGroup">
+                    <label for="roomType" class="label">Room Type</label>
+                    <select formControlName="roomType"  id="roomType" class="roomType">
+                        <option value="">Choose Room Type</option>
+                        <option value="ONE_BED">One Bed</option>
+                        <option value="TWO_BED">Two Bed</option>
+                        <option value="SUITE">Suite</option>
+                    </select>
+                    <div class="error" 
+                        *ngIf="priceEditForm.get('roomType')?.invalid 
+                            && priceEditForm.get('roomType')?.touched">Das Feld Raumtyp ist ein Pflichtfeld</div>
+                </div>
+            <div class="formGroup">
+                    <label for="bookingType" class="label">Booking Type</label>
+                    <select formControlName="bookingType"  id="bookingType" class="bookingType">
+                        <option value="">Choose Booking Type</option>
+                        <option value="ONLY_REST">Only rest</option>
+                        <option value="WITH_BREAKFAST">With breakfast</option>
+                        <option value="HALF_BOARD">Half board</option>
+                        <option value="ALL_INCLUSIVE">All inclusive</option>
+                    </select>
+                    <div class="error" 
+                        *ngIf="priceEditForm.get('bookingType')?.invalid 
+                            && priceEditForm.get('bookingType')?.touched">Das Feld Buchungstype ist ein Pflichtfeld</div>
+                </div>
+            <div class="formGroup">
+                    <label for="nettoPrice" class="label">Netto Preis</label>
+                    <input type="number" class="input" id="nettoPrice" formControlName="nettoPrice" placeholder="0.00" step="0.01">
+                    <div class="error" 
+                        *ngIf="priceEditForm.get('nettoPrice')?.invalid 
+                            && priceEditForm.get('nettoPrice')?.touched">Das Feld Netto Preis ist ein Pflichtfeld</div>
+                </div>
+            <div class="formGroup">
+                    <label for="tax_rate" class="label">Tax when it is not 19%</label>
+                    <input type="number" class="input" id="tax_rate" formControlName="taxRate" step="0.01" placeholder="19.00">
+                    <div class="error" 
+                        *ngIf="priceEditForm.get('taxRate')?.invalid 
+                            && priceEditForm.get('taxRate')?.touched">Das Feld Taxrate ist ein Pflichtfeld</div>
+                </div>
+                <div class="buttonWrapper">
+                    <button class="button" type="submit">Send</button>
+                </div>
+        </form>
+    </div>
+</div>

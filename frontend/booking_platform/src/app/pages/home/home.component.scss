@@ -1,0 +1,64 @@
+@use '../../../variables' as *;
+.container{
+    @include container;
+    & p{
+        color:$fontColor;
+    }
+}
+.navbar{
+    width:100%; 
+    @include responsive(s){
+        display:none;
+    }  
+}
+.mobileNavbar{
+    width:100%; 
+    display:none;
+    @include responsive(s){
+        display:block;
+    }  
+}
+
+.contentWrapper{
+    width:100%;
+    margin-top:50px;
+    display:flex;
+    flex-direction:row;
+    align-items:center;
+      @include responsive(m){
+        flex-direction: column;
+    }
+}
+.textwrapper{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    color:$fontColor;
+    @include responsive(m){
+        margin-bottom: 20px;
+    }
+}
+.picture{
+    flex:1;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+#mainImage{
+    width:600px;
+    height:300px;
+    @include responsive(xl){
+        width:500px;
+        height:250px;
+    }
+    @include responsive(x){
+        width:400px;
+        height:200px;
+    }
+    @include responsive(ml){
+        width:300px;
+        height:150px;
+    }
+}

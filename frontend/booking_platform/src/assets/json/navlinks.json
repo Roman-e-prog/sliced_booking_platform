@@ -1,0 +1,12 @@
+[
+    {
+        "id":1,
+        "url":"/register",
+        "name":"Register"
+    },
+    {
+        "id":2,
+        "url":"/booking",
+        "name":"Book a room"
+    }
+]

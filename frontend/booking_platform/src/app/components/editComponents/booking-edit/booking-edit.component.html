@@ -1,0 +1,75 @@
+<div class="container">
+  <div class="headWrapper">
+    <h3 class="bookingEdit">Edit</h3>
+  </div>
+    <div class="formWrapper">
+    <form [formGroup]="bookingEditForm" class="form" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="roomNumber" class="label">Zimmer Nummer bitte zuweisen</label>
+        <input type="number" id="roomNumber" formControlName="roomNumber" class="form-control">
+        <div class="error" 
+                        *ngIf="bookingEditForm.get('roomNumber')?.invalid 
+                            && bookingEditForm.get('roomNumber')?.touched">Das Feld Zimmernummer ist ein Pflichtfeld</div>
+      </div>
+      <div class="form-group">
+        <label for="number_of_persons" class="label">Number of Persons</label>
+        <input type="number" id="number_of_persons" formControlName="numberOfPersons" class="form-control">
+        <div class="error" 
+                        *ngIf="bookingEditForm.get('numberOfPersons')?.invalid 
+                            && bookingEditForm.get('numberOfPersons')?.touched">Das Feld Anzahl der Personen ist ein Pflichtfeld</div>
+      </div>
+      <div class="form-group">
+        <label for="start_date" class="label">Start Date</label>
+        <input type="date" id="start_date" formControlName="startDate" class="form-control">
+        <div class="error" 
+                        *ngIf="bookingEditForm.get('startDate')?.invalid 
+                            && bookingEditForm.get('startDate')?.touched">Das Feld Startdatum ist ein Pflichtfeld</div>
+                
+      </div>
+      <div class="form-group">
+        <label for="end_date" class="label">End Date</label>
+        <input type="date" id="end_date" formControlName="endDate" class="form-control">
+        <div class="error" 
+                        *ngIf="bookingEditForm.get('endDate')?.invalid 
+                            && bookingEditForm.get('endDate')?.touched">Das Feld Enddatum ist ein Pflichtfeld</div>
+      </div>
+      <div class="form-group">
+        <label for="booking_type" class="label">Booking Type</label>
+        <select id="booking_type" formControlName="bookingType" class="form-control">
+          <option value="">Select Booking Type</option>
+          <option value="ONLY_REST">Ohne Pension</option>
+          <option value="WITH_BREAKFAST">Mit Frühstück</option>
+          <option value="ALL_INCLUSIVE">All Inclusive</option>
+        </select>
+        <div class="error" 
+                        *ngIf="bookingEditForm.get('bookingType')?.invalid 
+                            && bookingEditForm.get('bookingType')?.touched">Das Feld Buchungsart ist ein Pflichtfeld</div>
+      </div>
+      <div class="form-group">
+        <label for="room_type" class="label">Room Type</label>
+        <select id="room_type" formControlName="roomType" class="form-control">
+          <option value="">Select Room Type</option>
+          <option value="ONE_BED">Standard</option>
+          <option value="TWO_BED">Double</option>
+          <option value="Suite">Suite</option>
+        </select>
+        <div class="error" 
+                        *ngIf="bookingEditForm.get('roomType')?.invalid 
+                            && bookingEditForm.get('roomType')?.touched">Das Feld Raumtyp ist ein Pflichtfeld</div>
+      </div>
+      <div class="form-group">
+        <label for="user_type" class="label">User Type</label>
+        <select id="user_type" formControlName="userType" class="form-control">
+          <option value="">Select User Type</option>
+          <option value="PRIVATE_GUEST">Private</option>
+          <option value="BUSINESS_GUEST">Business</option>
+          <option value="POLITICIAN_GUEST">Politischer Gast mit Akkreditierung</option>
+        </select>
+        <div class="error" 
+                        *ngIf="bookingEditForm.get('userType')?.invalid 
+                            && bookingEditForm.get('userType')?.touched">Das Feld Benutzertyp ist ein Pflichtfeld</div>
+      </div>
+      <button type="submit" class="sendBtn">Book Room</button>
+    </form>
+  </div>
+</div>

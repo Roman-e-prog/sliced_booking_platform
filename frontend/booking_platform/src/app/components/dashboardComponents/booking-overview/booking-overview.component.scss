@@ -1,0 +1,41 @@
+@use '../../../../variables' as *;
+:host {
+  container-type: inline-size;
+   background:$mainBg;
+    border: none;
+    box-shadow: none;
+    outline: none;
+}
+.container{
+    @include container;
+}
+.bookingsWrapper{
+    padding:10px;
+    color:$fontColor;
+}
+.bookingsHeader{
+    color:$fontColor;
+    margin:20px;
+}
+.fieldWrapper{
+    margin:20px;
+}
+.editAndDeleteWrapper{
+    width:100%;
+    margin:20px;
+    display: flex;
+
+}
+.update{
+        width:100px;
+        padding:20px;
+        background: $elementColor;
+        color:$fontColor;
+        margin-right: 20px;
+    }
+.delete{
+        width:100px;
+        padding:20px;
+        background: red;
+        color:$fontColor;
+    }

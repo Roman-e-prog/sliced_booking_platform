@@ -1,0 +1,20 @@
+<nav class="navbar">
+    <div class="logo"></div>
+    <div class="mainNav">
+         <span class="material-icons-outlined icons" id="menuButton" (click)="handleMenu()">
+            menu
+            </span>
+        <ul class="navList" *ngIf="menuOpen">
+            <li class="navItem" *ngFor=" let navlink of navlinks">
+                <a [routerLink]="[navlink.url]">{{navlink.name}}</a>
+            </li>
+            <li class="navItem">
+                <p (click)="handleLogout()" *ngIf="user">Logout</p>
+            </li>
+            <li class="navItem" *ngIf="user && user.role === 'ADMIN'">
+                <a [routerLink]="['/dashboard']">Dashboard</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+

@@ -1,0 +1,70 @@
+<div class="priceSetterContainer">
+    <div class="headlinWrapper">
+        <h3 class="priceHeadline">Aktuelle Preise</h3>
+    </div>
+    <div class="priceContentWrapper">
+        <div class="priceFieldWrapper" *ngFor="let price of allPrices$ | async">
+            <p class="price_id">Preis id: {{price.priceId}}</p>
+            <p class="roomType">Raumtyp: {{price.roomType.split('_').join(' ')}}</p>
+            <p class="bookingType">Buchungstyp: {{price.bookingType.split('_').join(' ')}}</p>
+            <p class="nettoPrice">Preis: {{price.nettoPrice}} €</p>
+            <p class="taxRate">MwSt: {{price.taxRate}} %</p>
+            <p class="brutto">
+                Brutto: {{ (price.nettoPrice * (1 + price.taxRate / 100)) | number:'1.2-2' }} €
+                </p>
+                <div class="editAndDeleteWrapper">
+                <button class="update" (click)="handleEdit(price)">Update</button>
+                <button class="delete" (click)="handleDelete(price.priceId!)">Delete</button>
+            </div>
+        </div>
+    </div>
+    <div class="priceFormWrapper" *ngIf="!editModule">
+        <form [formGroup]="priceSetterForm" (ngSubmit)="onSubmit()" class="form">
+            <div class="formGroup">
+                    <label for="roomType" class="label">Room Type</label>
+                    <select formControlName="roomType"  id="roomType" class="roomType">
+                        <option value="">Choose Room Type</option>
+                        <option value="ONE_BED">One Bed</option>
+                        <option value="TWO_BED">Two Bed</option>
+                        <option value="SUITE">Suite</option>
+                    </select>
+                    <div class="error" 
+                        *ngIf="priceSetterForm.get('roomType')?.invalid 
+                            && priceSetterForm.get('roomType')?.touched">Das Feld Raumtyp ist ein Pflichtfeld</div>
+                </div>
+            <div class="formGroup">
+                    <label for="bookingType" class="label">Booking Type</label>
+                    <select formControlName="bookingType"  id="bookingType" class="bookingType">
+                        <option value="">Choose Booking Type</option>
+                        <option value="ONLY_REST">Only rest</option>
+                        <option value="WITH_BREAKFAST">With breakfast</option>
+                        <option value="HALF_BOARD">Half board</option>
+                        <option value="ALL_INCLUSIVE">All inclusive</option>
+                    </select>
+                    <div class="error" 
+                        *ngIf="priceSetterForm.get('bookingType')?.invalid 
+                            && priceSetterForm.get('bookingType')?.touched">Das Feld Buchungstype ist ein Pflichtfeld</div>
+                </div>
+            <div class="formGroup">
+                    <label for="nettoPrice" class="label">Netto Preis</label>
+                    <input type="number" class="input" id="nettoPrice" formControlName="nettoPrice" placeholder="0.00" step="0.01">
+                    <div class="error" 
+                        *ngIf="priceSetterForm.get('nettoPrice')?.invalid 
+                            && priceSetterForm.get('nettoPrice')?.touched">Das Feld Netto Preis ist ein Pflichtfeld</div>
+                </div>
+            <div class="formGroup">
+                    <label for="tax_rate" class="label">Tax when it is not 19%</label>
+                    <input type="number" class="input" id="tax_rate" formControlName="taxRate" step="0.01" placeholder="19.00">
+                    <div class="error" 
+                        *ngIf="priceSetterForm.get('taxRate')?.invalid 
+                            && priceSetterForm.get('taxRate')?.touched">Das Feld Taxrate ist ein Pflichtfeld</div>
+                </div>
+                <div class="buttonWrapper">
+                    <button class="button" type="submit">Send</button>
+                </div>
+        </form>
+    </div>
+      <div class="formWrapper" *ngIf="editModule">
+       <app-price-edit [editPriceData]="editData" (closeEdit)="handleClose()"></app-price-edit> 
+    </div>
+</div>

@@ -1,0 +1,53 @@
+@use '../../../variables' as *;
+.registerContainer{
+    @include container;
+    
+}
+.navbar{
+    width:100%; 
+    @include responsive(s){
+        display:none;
+    }  
+}
+.mobileNavbar{
+    width:100%; 
+    display:none;
+    @include responsive(s){
+        display:block;
+    }  
+}
+.registerHeader{
+    color:$fontColor;
+    margin-left: 50px;
+    margin-top:40px;
+}
+.registerWrapper{
+    width:100%;
+    display:flex;
+    align-items: center;
+    justify-content: center;
+}
+.label{
+    color:$fontColor;
+    margin-bottom:2px;
+}
+.buttonWrapper{
+    display:flex;
+    flex-direction: column;
+
+    & .registerButton{
+        width:200px;
+        padding:10px;
+        margin-left: 10px;
+        cursor:pointer;
+        background: $elementColor;
+        color:$fontColor;
+    }
+    & .loginLink{
+        margin-left: 10px;
+        color:$elementColor;
+        margin-top: 10px;
+    }
+}
+
+

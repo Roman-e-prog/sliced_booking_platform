@@ -1,0 +1,51 @@
+<div class="editRoomContainer">
+    <h2 class="editHeadline">Update</h2>
+    <button class="close" (click)="handleClose()">Schließen</button>
+    <form [formGroup]="roomEditForm" class="form" (ngSubmit)="onSubmit()">
+         <div class="formGroup">
+                    <label for="room_type" class="label">Room Type</label>
+                    <select formControlName="room_type"  id="room_type" class="roomType">
+                        <option value="">Choose Room Type</option>
+                        <option value="one_bed">One Bed</option>
+                        <option value="two_bed">Two Bed</option>
+                        <option value="suite">Suite</option>
+                    </select>
+                    <div class="error" 
+                        *ngIf="roomEditForm.get('room_type')?.invalid 
+                            && roomEditForm.get('room_type')?.touched">Das Feld Raumtyp ist ein Pflichtfeld</div>
+                </div>
+                <div class="editor">
+                    <quill-editor formControlName="description"></quill-editor>
+                </div>
+                <div class="formGroup">
+                    <label for="price_per_night" class="label">Preis pro Nacht</label>
+                    <input type="number" formControlName="price_per_night" id="price_per_night" class="input">
+                    <div class="error" 
+                        *ngIf="roomEditForm.get('price_per_night')?.invalid 
+                            && roomEditForm.get('price_per_night')?.touched">Das Feld Preis pro Nacht ist ein Pflichtfeld</div>
+                </div>
+                <div class="formGroup">
+                    <label for="roomNumber" class="label">Zimmernummer</label>
+                    <input type="number" formControlName="roomNumber" id="roomNumber" class="input">
+                    <div class="error" 
+                        *ngIf="roomEditForm.get('roomNumber')?.invalid 
+                            && roomEditForm.get('roomNumber')?.touched">Das Feld Zimmernummer ist ein Pflichtfeld</div>
+                </div>
+                 <div formArrayName="images">
+                    <div *ngFor="let img of images.controls; let i = index" [formGroupName]="i" class="formGroup">
+                        <label class="label">Image Nr. {{ i + 1 }}</label>
+                        <!-- <img [src]="img.path" alt="" class="image"> -->
+                        <input type="file" (change)="handleFile(i, $event)" class="input"/>
+                        <label>Alt</label>
+                        <input type="text" formControlName="alt" />
+                        <label>Title</label>
+                        <input type="text" formControlName="title" />
+                        <button class="remove" type="button" (click)="removeImage(i)">Delete this image</button>
+                    </div>
+                    <button class="add" type="button" (click)="addImage()">Add Image</button>
+                </div>
+                <div class="buttonWrapper">
+                    <button class="button" type="submit">Update</button>
+                </div>
+    </form>
+</div>

@@ -1,0 +1,27 @@
+<div class="container">
+    <div class="bookingsWrapper" *ngIf="!editModule">
+        <h2 class="bookingsHeader">Booking Overview</h2>
+        <div class="fieldWrapper" *ngFor="let booking of allBookings$ | async">
+            <p>Buchungsnummer: {{ booking.bookingId }}</p>
+            <p>Anzahl der Personen: {{ booking.numberOfPersons }}</p>
+            <p>Startdatum: {{ booking.startDate }}</p>
+            <p>Enddatum: {{ booking.endDate }}</p>
+            <p>Buchungsart: {{ booking.bookingType }}</p>
+            <p>Zimmerart: {{ booking.roomType }}</p>
+            <p>Preis: {{ booking.pricePerNight }}</p>
+            <p>Gesamtpreis: {{ booking.fullPrice }}</p>
+            <p>Bruttogeld: {{ booking.bruttoPrice }}</p>
+            <p>Steuer: {{ booking.tax }}</p>
+            <p>Gebucht am: {{ booking.createdAt | date:'mediumDate' }}</p>
+            <p>Kundenname: {{booking.user!.prename}} {{booking.user?.lastname}}</p>
+            <p>Kundennummer: {{booking.user!.userId}}</p>
+            <div class="editAndDeleteWrapper">
+            <button class="update" (click)="handleUpdate(booking)">Update</button>
+            <button class="delete" (click)="handleDelete(booking.bookingId!)">Delete</button>
+            </div>
+        </div>
+    </div>
+      <div class="formWrapper" *ngIf="editModule">
+       <app-booking-edit [editBookingData]="editData" (closeEdit)="handleClose()"></app-booking-edit> 
+    </div>
+</div>

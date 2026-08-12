@@ -1,0 +1,74 @@
+<div class="content">
+    <div class="headWrapper">
+        <h2 class="roomHeader">Room management</h2>
+    </div>
+    <div class="existingRooms" *ngIf="existingModule && !editModule">
+        <div *ngFor="let room of processedRooms$ | async" class="fieldWrapper">
+            <p class="desc">{{ room.description }}</p>
+            <p class="roomType">{{ room.roomType }}</p>
+            <p class="available">{{ room.isAvailable ? "Available" : "Booked" }}<p>
+            <p class="pricePerNight">Price per night: {{ room.pricePerNight }}€</p>
+            <div class="otherImages">
+                <img *ngFor="let image of room.images"
+                    [src]="image.path"
+                    [alt]="image.alt"
+                    [title]="image.title" class="roomImages">
+            </div>
+            <div class="updateAndDelete">
+                <button class="update" (click)="handleEdit(room)">Update</button>
+                <button class="delete" (click)="handleDelete(room.roomId!)">Delete</button>
+            </div>
+        </div>
+    </div>
+    <div class="toggleButtonWrapper" >
+        <button class="toggleButton" *ngIf="!existingModule && !editModule" (click)="toggleExistingModule()">Show all rooms</button>
+        <button class="toggleButton" *ngIf="existingModule && !editModule" (click)="toggleExistingModule()">Hide all rooms</button>
+    </div>
+    <div class="formWrapper" *ngIf="!editModule">
+        <form [formGroup]="roomForm" class="form" (ngSubmit)="onSubmit()">
+                <div class="formGroup">
+                    <label for="room_type" class="label">Room Type</label>
+                    <select formControlName="room_type"  id="room_type" class="roomType">
+                        <option value="">Choose Room Type</option>
+                        <option value="ONE_BED">One Bed</option>
+                        <option value="TWO_BED">Two Bed</option>
+                        <option value="SUITE">Suite</option>
+                    </select>
+                    <div class="error" 
+                        *ngIf="roomForm.get('room_type')?.invalid 
+                            && roomForm.get('room_type')?.touched">Das Feld Raumtyp ist ein Pflichtfeld</div>
+                </div>
+                <div class="editor">
+                    <quill-editor formControlName="description"></quill-editor>
+                </div>
+                <div class="formGroup">
+                    <label for="price_per_night" class="label">Price per night</label>
+                    <input type="number" formControlName="price_per_night" id="price_per_night" class="input">
+                    <div class="error" 
+                        *ngIf="roomForm.get('price_per_night')?.invalid 
+                            && roomForm.get('price_per_night')?.touched">Das Feld Preis pro Nacht ist ein Pflichtfeld</div>
+                </div>
+                <div class="formGroup">
+                    <label for="roomNumber" class="label">Zimmernummer</label>
+                    <input type="number" formControlName="roomNumber" id="roomNumber" class="input">
+                    <div class="error" 
+                        *ngIf="roomForm.get('roomNumber')?.invalid 
+                            && roomForm.get('roomNumber')?.touched">Das Feld Zimmernummer ist ein Pflichtfeld</div>
+                </div>
+                <div class="formGroup">
+                    <label for="images" class="label">Images</label>
+                    <input type="file" id="images" class="fileInput" multiple (change)="handleFileChange($event)">
+                </div>
+                 <div class="formGroup" *ngFor="let i of fileIndexes">
+                    <label for="alts" class="label">Alt{{i+1}}</label>
+                    <input type="text" id="alts" class="input" (change)="handleAltChange($event, i)">
+                </div>
+                  <div class="buttonWrapper">
+                    <button class="button" type="submit">Send</button>
+                </div>
+        </form>
+    </div>
+    <div class="formWrapper" *ngIf="editModule">
+       <app-room-edit [editRoomData]="editData" (closeEdit)="handleClose()"></app-room-edit> 
+    </div>
+</div>

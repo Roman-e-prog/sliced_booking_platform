@@ -1,0 +1,8 @@
+@use '../../../../variables' as *;
+
+.container{
+    @include container;
+}
+.editHeader{
+    color:$fontColor;
+}

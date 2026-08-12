@@ -1,0 +1,90 @@
+<div class="container">
+  <div class="navbar">
+    <app-navbar></app-navbar>
+    </div>
+    <div class="mobileNavbar">
+    <app-mobile-navbar></app-mobile-navbar>
+    </div>
+  <h1 class="roomTitle">Booking</h1>
+  <div class="roomData" *ngIf="singleRoom$ | async as room">
+    <h2 class="roomTitle">Room Details</h2>
+    <div class="imageWrapper" *ngIf="room.images">
+      <img [src]="room.images[0].path" [alt]="room.roomType" class="mainImage">
+    </div>
+      <div class="desc">
+        <p><strong>Room ID:</strong> {{ room?.roomId }}</p>
+        <p><strong>Room Type:</strong> {{ formattedRoomType$ | async }}</p>
+        <p><strong>Price:</strong> {{ room?.pricePerNight | currency:'EUR' }}</p>
+        <div class="descriptionWrapper">
+          <p id="description"><strong>Description:</strong> {{ room?.description }}</p>
+        </div>
+        <p><strong>Availability:</strong> {{ room?.isAvailable ? 'Available' : 'Not Available' }}</p>
+    </div>
+    <div class="otherImages" *ngIf="room.images && room.images.length > 1">
+      <img *ngFor="let image of room.images.slice(1)" [src]="image.path" [alt]="image.alt" class="additionalImg">
+    </div>
+  </div>
+  <div class="formWrapper">
+    <form [formGroup]="bookingForm" class="form" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="number_of_persons">Number of Persons</label>
+        <input type="number" id="number_of_persons" formControlName="numberOfPersons" class="form-control">
+        <div class="error" 
+                        *ngIf="bookingForm.get('numberOfPersons')?.invalid 
+                            && bookingForm.get('numberOfPersons')?.touched">Das Feld Anzahl der Personen ist ein Pflichtfeld</div>
+      </div>
+      <div class="form-group">
+        <label for="start_date">Start Date</label>
+        <input type="date" id="start_date" formControlName="startDate" class="form-control">
+        <div class="error" 
+                        *ngIf="bookingForm.get('startDate')?.invalid 
+                            && bookingForm.get('startDate')?.touched">Das Feld Startdatum ist ein Pflichtfeld</div>
+                
+      </div>
+      <div class="form-group">
+        <label for="end_date">End Date</label>
+        <input type="date" id="end_date" formControlName="endDate" class="form-control">
+        <div class="error" 
+                        *ngIf="bookingForm.get('endDate')?.invalid 
+                            && bookingForm.get('endDate')?.touched">Das Feld Enddatum ist ein Pflichtfeld</div>
+      </div>
+      <div class="form-group">
+        <label for="booking_type">Booking Type</label>
+        <select id="booking_type" formControlName="bookingType" class="form-control">
+          <option value="">Select Booking Type</option>
+          <option value="ONLY_REST">Ohne Pension</option>
+          <option value="WITH_BREAKFAST">Mit Frühstück</option>
+          <option value="ALL_INCLUSIVE">All Inclusive</option>
+        </select>
+        <div class="error" 
+                        *ngIf="bookingForm.get('bookingType')?.invalid 
+                            && bookingForm.get('bookingType')?.touched">Das Feld Buchungsart ist ein Pflichtfeld</div>
+      </div>
+      <div class="form-group">
+        <label for="room_type">Room Type</label>
+        <select id="room_type" formControlName="roomType" class="form-control">
+          <option value="">Select Room Type</option>
+          <option value="ONE_BED">Standard</option>
+          <option value="TWO_BED">Double</option>
+          <option value="Suite">Suite</option>
+        </select>
+        <div class="error" 
+                        *ngIf="bookingForm.get('roomType')?.invalid 
+                            && bookingForm.get('roomType')?.touched">Das Feld Raumtyp ist ein Pflichtfeld</div>
+      </div>
+      <div class="form-group">
+        <label for="user_type">User Type</label>
+        <select id="user_type" formControlName="userType" class="form-control">
+          <option value="">Select User Type</option>
+          <option value="PRIVATE_GUEST">Private</option>
+          <option value="BUSINESS_GUEST">Business</option>
+          <option value="POLITICIAN_GUEST">Politischer Gast mit Akkreditierung</option>
+        </select>
+        <div class="error" 
+                        *ngIf="bookingForm.get('userType')?.invalid 
+                            && bookingForm.get('userType')?.touched">Das Feld Benutzertyp ist ein Pflichtfeld</div>
+      </div>
+      <button type="submit" class="sendBtn">Book Room</button>
+    </form>
+  </div>
+</div>

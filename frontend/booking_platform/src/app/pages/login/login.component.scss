@@ -1,0 +1,41 @@
+@use '../../../variables' as *;
+.loginContainer{
+    @include container;
+}
+.navbar{
+    width:100%; 
+    @include responsive(s){
+        display:none;
+    }  
+}
+.mobileNavbar{
+    width:100%; 
+    display:none;
+    @include responsive(s){
+        display:block;
+    }  
+}
+.loginHeader{
+     color:$fontColor;
+    margin-left: 50px;
+    margin-top:40px;
+}
+.loginWrapper{
+    width:100%;
+    display: flex;
+    justify-content:center;
+    align-items: center;
+}
+.label{
+    color:$fontColor;
+    margin-bottom: 2px;
+}
+.loginButton{
+    margin-left:10px;
+    margin-top: 20px;
+    width:200px;
+    padding:10px;
+    cursor:pointer;
+    background: $elementColor;
+    color:$fontColor;
+}

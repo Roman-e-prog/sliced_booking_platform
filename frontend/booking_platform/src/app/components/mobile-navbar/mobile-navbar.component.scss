@@ -1,0 +1,52 @@
+@use '../../../variables' as *;
+.navbar{
+    width:100%;
+    height:150px;
+    background:$secondBg;
+    display:flex;
+    align-items:center;
+}
+#menuButton{
+    color:$fontColor;
+    font-size:60px;
+    cursor:pointer;
+    margin-right: 40px;
+}
+.logo{
+    flex:1;
+    height:100%;
+}
+.mainNav{
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position:relative;
+}
+.navList{
+    width:200px;
+    list-style: none;
+    display:flex;
+    flex-direction: column;
+    align-items:center;
+    position:absolute;
+    top: 100px;
+    right:0;
+    padding-left: 2px;
+    z-index: 200;
+    background:$secondBg;
+}
+.navItem{
+    height:30px;
+    width:100%;
+    padding:4px;
+    border-bottom: 1px solid $fontColor;
+    cursor:pointer;
+    & a, p{
+        color:$fontColor;
+        font-size:20px;
+    }
+    & p{
+        cursor:pointer;
+    }
+}

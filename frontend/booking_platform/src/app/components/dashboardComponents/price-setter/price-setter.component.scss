@@ -1,0 +1,45 @@
+@use '../../../../variables' as *;
+:host {
+  container-type: inline-size;
+     background:$mainBg;
+    border: none;
+    box-shadow: none;
+    outline: none;
+}
+.priceSetterContainer{
+    @include container;
+    padding-top:50px;
+}
+.priceHeadline, .priceFieldWrapper, .priceFormWrapper{
+    color:$fontColor;
+    margin-left: 20px;
+    margin-top:20px;
+}
+.priceFieldWrapper{
+     min-height:200px;
+}
+.price_id{
+    color:$fontColor;
+    font-size:20px;
+    margin-top:10px;
+    margin-bottom:10px;
+}
+.update{
+        width:100px;
+        padding:20px;
+        background: $elementColor;
+        color:$fontColor;
+        margin-right: 20px;
+    }
+.delete{
+        width:100px;
+        padding:20px;
+        background: red;
+        color:$fontColor;
+    }
+.button{
+    background: $elementColor;
+    color:$fontColor;
+    padding:10px;
+    margin:5px;
+}

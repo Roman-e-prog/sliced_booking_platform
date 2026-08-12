@@ -1,0 +1,22 @@
+@use '../../../../variables' as *;
+.container{
+    width:100%;
+}
+.bookingEdit{
+    color:$fontColor;
+}
+.formWrapper{
+    width:100%;
+}
+.form-group{
+    width:80%;
+    padding:20px;
+    display:flex;
+    flex-direction:column;
+}
+.form-control{
+    width:100%;
+}
+.label{
+    color:$fontColor;
+}

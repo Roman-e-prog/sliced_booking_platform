@@ -1,0 +1,19 @@
+@use '../../../variables' as *;
+.dashBoardContainer{
+    width:100%;
+    min-height: 100vh;
+    padding-bottom: 50px;
+}
+.navbar{
+    width:100%; 
+    @include responsive(s){
+        display:none;
+    }  
+}
+.mobileNavbar{
+    width:100%; 
+    display:none;
+    @include responsive(s){
+        display:block;
+    }  
+}

@@ -1,0 +1,68 @@
+/* You can add global styles to this file, and also import other style files */
+@use './variables' as *;
+@use '@angular/material' as mat;
+
+@include mat.core();
+
+$primary: mat.define-palette(mat.$cyan-palette);
+$accent: mat.define-palette(mat.$pink-palette);
+$warn: mat.define-palette(mat.$red-palette);
+
+$theme: mat.define-light-theme((
+  color: (
+    primary: $primary,
+    accent: $accent,
+    warn: $warn,
+  )
+));
+
+@include mat.all-component-themes($theme);
+
+
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing: border-box;
+}
+body{
+    font-size:100%;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    overflow-x: hidden;
+}
+ul{
+    margin:0;
+    padding:0;
+}
+a{
+    text-decoration: none;
+}
+.error{
+    color:red;
+    margin-top: 5px;
+}
+// .icons{
+//     font-size: 24px;
+//     color:white;
+//     cursor: pointer;
+// }
+.form{
+    width:80%;
+}
+
+.formGroup{
+    display:flex;
+    flex-direction: column;
+    margin:5px;
+    width:80%;
+}
+/* Only affect the form-field, not the popup */
+/* FORM FIELD ONLY — safe, isolated */
+.datePicker .mat-mdc-text-field-wrapper {
+  overflow: visible !important;
+}
+
+.datePicker {
+  margin-top: 12px;
+  color:white;
+}

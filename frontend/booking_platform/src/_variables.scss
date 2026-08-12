@@ -1,0 +1,27 @@
+$fontColor: #dad3d3;
+$mainBg: rgb(9, 6, 20);
+$secondBg: #03043b;
+$elementColor: rgba(7, 179, 50, 0.333);
+
+@mixin container{
+    width: 100%;
+    min-height: 100vh;
+    background:$mainBg;
+    padding-bottom: 50px;
+}
+
+$breakPoints: (
+    xl: 1024px,
+    x: 960px,
+    ml: 768px,
+    m: 650px,
+    sl:560px,
+    s:480px,
+    sx:400px,
+);
+@mixin responsive($breakPoint){
+    $max-width: map-get($breakPoints, $breakPoint);
+    @media screen and (max-width: $max-width)  {
+        @content
+    }
+}

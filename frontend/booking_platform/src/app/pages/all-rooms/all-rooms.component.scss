@@ -1,0 +1,63 @@
+@use '../../../variables' as *;
+.container{
+  @include container;  
+}
+.contentWrapper{
+    width:100%;
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:space-around;
+     @include responsive(ml){
+        flex-direction: column;
+        flex-wrap: nowrap;
+        align-items: center;
+        justify-content: center;
+    }
+}
+.fieldWrapper{
+    width:30%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    margin:20px 20px;
+    @include responsive(x){
+        margin:10px 10px;
+    }
+    @include responsive(ml){
+        margin:10px 10px;
+        width:80%;
+    }
+    
+}
+.content{
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+
+    & p{
+        color:$fontColor;
+        font-size:20px;
+    }
+}
+.roomImg{
+    width:300px;
+    height:200px;
+      @include responsive(ml){
+        width:400px;
+        height:250px;
+    }
+}
+.navbar{
+    width:100%; 
+    @include responsive(s){
+        display:none;
+    }  
+}
+.mobileNavbar{
+    width:100%; 
+    display:none;
+    @include responsive(s){
+        display:block;
+    }  
+}

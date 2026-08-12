@@ -1,0 +1,17 @@
+@use '../../../../variables' as *;
+.editHeadline, .label, .editor{
+    color:$fontColor;
+}
+.formGroup{
+    display: flex;
+    flex-direction: column;
+    margin:10px;
+}
+.add{
+    width:100px;
+    padding:20px;
+    margin:20px;
+}
+.remove{
+    margin-top: 10px;
+}
