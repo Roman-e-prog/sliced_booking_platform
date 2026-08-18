@@ -3,7 +3,6 @@ package com.roman.booking_service.booking.model;
 import com.roman.booking_service.enums.BookingType;
 import com.roman.booking_service.enums.UserType;
 import com.roman.booking_service.enums.RoomType;
-//import com.roman.booking_service.pricesetting.model.Price;
 import com.roman.booking_service.webClient.dto.UserResponse;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -26,8 +25,7 @@ public class Booking {
     @Column(name = "booking_id")
     private Long bookingId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @Column(name = "user_id", nullable = false)
     private Long userId;
 
     @Column(name = "room_number")
