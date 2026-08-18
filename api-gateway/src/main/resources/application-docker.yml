@@ -1,0 +1,102 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Credentials, RETAIN_FIRST
+        - DedupeResponseHeader=Access-Control-Allow-Origin, RETAIN_FIRST
+
+      routes:
+
+        # USER SERVICE
+        - id: user-service
+          uri: http://user-service:8084
+          predicates:
+            - Path=/api/user/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 50
+                redis-rate-limiter.burstCapacity: 100
+
+        # AUTH SERVICE (Teil des User-Service)
+        - id: auth-service
+          uri: http://user-service:8084
+          predicates:
+            - Path=/api/auth/**
+
+        # BOOKING SERVICE (Load-Balanced)
+        - id: booking-service
+          uri: lb://booking-service
+          predicates:
+            - Path=/api/booking/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 100
+                redis-rate-limiter.burstCapacity: 200
+            - name: CircuitBreaker
+              args:
+                name: bookingCB
+                fallbackUri: forward:/fallback/booking
+            - name: Retry
+              args:
+                retries: 3
+                statuses: BAD_GATEWAY
+                methods: GET
+                backoff.firstBackoff: 50ms
+                backoff.maxBackoff: 500ms
+                factor: 2
+                basedOnPreviousValue: true
+
+        # ROOM SERVICE
+        - id: room-service
+          uri: http://room-service:8083
+          predicates:
+            - Path=/api/room/**
+
+        # PRICE SERVICE
+        - id: price-service
+          uri: http://price-service:8082
+          predicates:
+            - Path=/api/price/**
+
+    loadbalancer:
+      instances:
+        booking-service:
+          - uri: http://booking-service:8081
+
+logging:
+  level:
+    root: INFO
+    org.springframework.cloud.gateway: DEBUG
+    reactor.netty.http.client: DEBUG
+  pattern:
+    level: "%5p [requestId=%X{requestId}, traceId=%X{traceId}, spanId=%X{spanId}]"
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      bookingCB:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+
+management:
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0
+
+  zipkin:
+    tracing:
+      endpoint: http://${ZIPKIN_HOST:zipkin}:${ZIPKIN_PORT:9411}/api/v2/spans
