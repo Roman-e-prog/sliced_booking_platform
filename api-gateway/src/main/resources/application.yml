@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8080   # Gateway-Port bleibt IMMER hier
 
 spring:
   application:
@@ -9,11 +9,12 @@ spring:
     gateway:
 
       # -----------------------------------------
-      # 1. GLOBAL FILTERS (Request-ID, Logging)
+      # 1. GLOBAL FILTERS (Request-ID, Logging, Bulkhead)
       # -----------------------------------------
       default-filters:
-        - AddRequestHeader=X-Request-ID, #{uuid}   # Request-ID Tracking
-        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+        - DedupeResponseHeader=Access-Control-Allow-Credentials, RETAIN_FIRST
+        - DedupeResponseHeader=Access-Control-Allow-Origin, RETAIN_FIRST
+        # Bulkhead ist ein GlobalFilter → NICHT hier eintragen
 
       # -----------------------------------------
       # 2. ROUTES
@@ -28,8 +29,14 @@ spring:
           filters:
             - name: RequestRateLimiter
               args:
-                redis-rate-limiter.replenishRate: 50     # 50 req/min
+                redis-rate-limiter.replenishRate: 50
                 redis-rate-limiter.burstCapacity: 100
+        # AUTH SERVICE (Teil des User-Service)
+        - id: auth-service
+          uri: http://localhost:8084
+          predicates:
+          - Path=/api/auth/**
+
 
         # BOOKING SERVICE (Load-Balanced)
         - id: booking-service
@@ -41,26 +48,23 @@ spring:
               args:
                 redis-rate-limiter.replenishRate: 100
                 redis-rate-limiter.burstCapacity: 200
+
             - name: CircuitBreaker
               args:
-                 name: bookingCB
-                 fallbackUri: forward:/fallback/booking
+                name: bookingCB
+                fallbackUri: forward:/fallback/booking
+
             - name: Retry
               args:
-                  retries: 3                # 3 Wiederholungen
-                  statuses: BAD_GATEWAY     # bei 502 erneut versuchen
-                  methods: GET              # nur GET wiederholen
-                  backoff:
-                    firstBackoff: 50ms      # Wartezeit vor erstem Retry
-                    maxBackoff: 500ms       # maximale Wartezeit
-                    factor: 2               # exponentielles Backoff
-                    basedOnPreviousValue: true
-            - name: Bulkhead
-              args:
-                  name: bookingBH
-                  type: SEMAPHORE
-                  maxConcurrentCalls: 20      # maximal 20 gleichzeitige Requests
-                  maxWaitDuration: 0
+                retries: 3
+                statuses: BAD_GATEWAY
+                methods: GET
+                backoff.firstBackoff: 50ms
+                backoff.maxBackoff: 500ms
+                factor: 2
+                basedOnPreviousValue: true
+
+            # Bulkhead NICHT möglich → GlobalFilter übernimmt das
 
         # ROOM SERVICE
         - id: room-service
@@ -75,11 +79,12 @@ spring:
             - Path=/api/price/**
 
     # -----------------------------------------
-    # 3. LOAD BALANCER CONFIG
+    # 3. LOAD BALANCER CONFIG (Pflicht für lb://)
     # -----------------------------------------
     loadbalancer:
-      ribbon:
-        enabled: false
+      instances:
+        booking-service:
+          - uri: http://localhost:8081   # MUSS existieren, sonst Fehler
 
 # -----------------------------------------
 # 4. LOGGING
@@ -92,6 +97,9 @@ logging:
   pattern:
     level: "%5p [requestId=%X{requestId}, traceId=%X{traceId}, spanId=%X{spanId}]"
 
+# -----------------------------------------
+# 5. RESILIENCE4J
+# -----------------------------------------
 resilience4j:
   circuitbreaker:
     instances:
@@ -102,19 +110,17 @@ resilience4j:
         failureRateThreshold: 50
         waitDurationInOpenState: 10s
         permittedNumberOfCallsInHalfOpenState: 3
-  threadpoolbulkhead:
-    instances:
-      userClientBH:
-        maxThreadPoolSize: 10
-        coreThreadPoolSize: 5
-        queueCapacity: 20
+
+
+# -----------------------------------------
+# 6. TRACING / ZIPKIN
+# -----------------------------------------
 management:
   tracing:
     enabled: true
     sampling:
-      probability: 1.0   # 100% aller Requests tracen
+      probability: 1.0
 
   zipkin:
     tracing:
       endpoint: http://localhost:9411/api/v2/spans
-
