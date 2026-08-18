@@ -33,110 +33,97 @@
     </properties>
     <dependencies>
 
-        <!-- API Gateway -->
+        <!-- 1) SPRING CLOUD GATEWAY (Pflicht)
+             Aktiviert Routing, Predicates, FilterFactories, GlobalFilter -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-gateway</artifactId>
         </dependency>
 
-        <!-- Reactive Web (required by Gateway) -->
+        <!-- 2) WEBFLUX (Pflicht)
+             Gateway basiert technisch auf WebFlux/Netty -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
 
-        <!-- Actuator for health checks -->
+        <!-- 3) ACTUATOR (optional, aber sehr wichtig)
+             /actuator/gateway/routes
+             /actuator/health
+             /actuator/gateway/globalfilters -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
-        <!-- Load Balancer (optional but recommended) -->
+        <!-- 4) LOADBALANCER (Pflicht für lb://booking-service)
+             Ermöglicht Service-Discovery oder statische Instances -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-loadbalancer</artifactId>
         </dependency>
 
-        <!-- Circuit Breaker (optional but recommended) -->
+        <!-- 5) CIRCUITBREAKER + RETRY + BULKHEAD
+             Aktiviert:
+             - CircuitBreaker Filter
+             - Retry Filter
+             - Bulkhead Filter -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-circuitbreaker-reactor-resilience4j</artifactId>
         </dependency>
-        <!-- Micrometer Tracing Bridge (Spring Boot 3.x) -->
-        <dependency>
-            <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-tracing-bridge-brave</artifactId>
-        </dependency>
-
-        <!-- Zipkin Reporter (für Export der Traces) -->
-        <dependency>
-            <groupId>io.zipkin.reporter2</groupId>
-            <artifactId>zipkin-reporter-brave</artifactId>
-        </dependency>
-
-        <!-- Brave Tracer (Zipkin-kompatibel) -->
-        <dependency>
-            <groupId>io.zipkin.brave</groupId>
-            <artifactId>brave</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-tracing-bridge-brave</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>io.zipkin.reporter2</groupId>
-            <artifactId>zipkin-reporter-brave</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>io.zipkin.brave</groupId>
-            <artifactId>brave</artifactId>
-        </dependency>
-
-
-
-
-        <!-- OPTIONAL: Security (only if you validate JWT in the gateway) -->
-        <!--
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
-        </dependency>
-        -->
-
-        <!-- OPTIONAL: Spring Boot Admin -->
-        <!--
-        <dependency>
-            <groupId>de.codecentric</groupId>
-            <artifactId>spring-boot-admin-starter-server</artifactId>
-        </dependency>
-        -->
-
-        <!-- OPTIONAL: Config Server -->
-        <!--
         <dependency>
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-config</artifactId>
+            <artifactId>spring-cloud-gateway-server</artifactId>
         </dependency>
-        -->
 
-        <!-- Lombok -->
+        <!-- 6) REDIS RATE LIMITER (Pflicht für RequestRateLimiter)
+             Aktiviert:
+             - RequestRateLimiter Filter
+             - redis-rate-limiter.* YAML-Konfiguration -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis-reactive</artifactId>
+        </dependency>
+
+        <!-- 7) MICROMETER TRACING (Pflicht für Zipkin)
+             Aktiviert Trace-ID, Span-ID -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-tracing-bridge-brave</artifactId>
+        </dependency>
+
+        <!-- 8) ZIPKIN REPORTER (Pflicht für Export)
+             Sendet Traces an Zipkin -->
+        <dependency>
+            <groupId>io.zipkin.reporter2</groupId>
+            <artifactId>zipkin-reporter-brave</artifactId>
+        </dependency>
+
+        <!-- 9) BRAVE TRACER (Pflicht für Zipkin)
+             Implementiert das Tracing -->
+        <dependency>
+            <groupId>io.zipkin.brave</groupId>
+            <artifactId>brave</artifactId>
+        </dependency>
+
+        <!-- 10) LOMBOK (Pflicht für @Slf4j in den Filtern) -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <optional>true</optional>
+            <version>1.18.32</version>
+            <scope>provided</scope>
         </dependency>
 
-        <!-- Tests -->
+        <!-- 11) TESTS -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
 
-
     </dependencies>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -177,6 +164,7 @@
                                 <path>
                                     <groupId>org.projectlombok</groupId>
                                     <artifactId>lombok</artifactId>
+                                    <version>1.18.32</version>
                                 </path>
                             </annotationProcessorPaths>
                         </configuration>
