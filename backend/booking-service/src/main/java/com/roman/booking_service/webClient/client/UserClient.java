@@ -4,13 +4,14 @@ import com.roman.booking_service.webClient.dto.UserResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.util.retry.Retry;
-
+import org.springframework.stereotype.Component;
 import java.time.Duration;
-
+import org.springframework.beans.factory.annotation.Qualifier;
+@Component
 public class UserClient {
 
     private final WebClient webClient;
-    public UserClient(WebClient webClient){
+    public UserClient(@Qualifier("userWebClient") WebClient webClient){
         this.webClient = webClient;
     }
     public UserResponse fetchUserById(Long userId) {

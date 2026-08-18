@@ -3,15 +3,16 @@ package com.roman.booking_service.webClient.client;
 import com.roman.booking_service.webClient.dto.PriceResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.beans.factory.annotation.Qualifier;
 import reactor.util.retry.Retry;
-
+import org.springframework.stereotype.Component;
 import java.time.Duration;
 import java.util.Optional;
-
+@Component
 public class PriceClient {
     private final WebClient webClient;
-    public PriceClient(WebClient priceWebClient){
-        this.webClient = priceWebClient;
+    public PriceClient(@Qualifier("priceWebClient") WebClient webClient){
+        this.webClient = webClient;
     }
     public Optional<PriceResponse> findByRoomTypeAndBookingType(String roomType, String bookingType) {
 

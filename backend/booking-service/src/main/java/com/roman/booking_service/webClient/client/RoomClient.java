@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.util.retry.Retry;
-
+import org.springframework.beans.factory.annotation.Qualifier;
 import java.math.BigDecimal;
 import java.time.Duration;
 
@@ -12,8 +12,8 @@ import java.time.Duration;
 public class RoomClient {
     private final WebClient webClient;
 
-    public RoomClient(WebClient roomWebClient) {
-        this.webClient = roomWebClient;
+    public RoomClient(@Qualifier("roomWebClient") WebClient webClient) {
+        this.webClient = webClient;
     }
 
     public RoomResponse fetchRoomByNumber(Integer roomNumber) {
