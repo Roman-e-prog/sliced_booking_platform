@@ -28,9 +28,6 @@ RUN mvn -q -DskipTests package
 ###############################################
 FROM eclipse-temurin:21-jre
 
-# Non-root User für Sicherheit
-RUN addgroup -S spring && adduser -S spring -G spring
-USER spring:spring
 
 # Arbeitsverzeichnis im Runtime-Container
 WORKDIR /app
