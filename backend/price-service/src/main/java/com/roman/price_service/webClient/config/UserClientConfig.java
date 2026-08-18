@@ -1,4 +1,4 @@
-package com.roman.room_service.webClient.config;
+package com.roman.price_service.webClient.config;
 
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
@@ -29,4 +29,3 @@ public class UserClientConfig {
                 .build();
     }
 }
-

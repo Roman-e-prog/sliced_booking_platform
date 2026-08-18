@@ -16,7 +16,7 @@ public class SecurityClient {
     public JwtPayload validateToken(String token) {
         return webClient.get()
                 .uri(uriBuilder -> uriBuilder
-                        .path("/securityService/validate")
+                        .path("securityService/validate")
                         .queryParam("token", token)
                         .build())
                 .retrieve()

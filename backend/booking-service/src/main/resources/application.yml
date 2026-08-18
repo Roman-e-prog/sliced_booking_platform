@@ -1,0 +1,36 @@
+server:
+  port: 8081
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/booking_service_app
+    username: postgres
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: booking-service-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+    listener:
+      ack-mode: record
+
+logging:
+  level:
+    root: INFO
+  pattern:
+    level: "%5p [requestId=%X{requestId}, traceId=%X{traceId}, spanId=%X{spanId}]"
+
+management:
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0
+
+  zipkin:
+    tracing:
+      endpoint: http://localhost:9411/api/v2/spans

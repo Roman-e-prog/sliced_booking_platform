@@ -1,0 +1,30 @@
+server:
+  port: 8084
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/user_service_app
+    username: postgres
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: update
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+logging:
+  level:
+    root: INFO
+  pattern:
+    level: "%5p [requestId=%X{requestId}, traceId=%X{traceId}, spanId=%X{spanId}]"
+
+management:
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0
+
+  zipkin:
+    tracing:
+      endpoint: http://localhost:9411/api/v2/spans
