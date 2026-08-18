@@ -1,0 +1,212 @@
+version: "3.9"
+
+services:
+
+  # ============================================================
+  # USER-SERVICE (Security, JWT, Auth, User-Management)
+  # ============================================================
+  user-service:
+    container_name: user-service
+    build: ./backend/user-service
+    ports:
+      - "8084:8084"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      DB_HOST: user-db
+      DB_PORT: 5432
+      DB_NAME: userdb
+      DB_USER: postgres
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SEC: ${JWT_SEC}
+      JWT_REFRESH_SEC: ${JWT_REFRESH_SEC}
+    depends_on:
+      - user-db
+    networks:
+      - customnetwork
+
+  user-db:
+    image: postgres:16
+    container_name: user-db
+    environment:
+      POSTGRES_DB: userdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ./db-data/user:/var/lib/postgresql/data
+    networks:
+      - customnetwork
+
+
+  # ============================================================
+  # BOOKING-SERVICE
+  # ============================================================
+  booking-service:
+    container_name: booking-service
+    build: ./backend/booking-service
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      DB_HOST: booking-db
+      DB_PORT: 5432
+      DB_NAME: bookingdb
+      DB_USER: postgres
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SEC: ${JWT_SEC}
+      JWT_REFRESH_SEC: ${JWT_REFRESH_SEC}
+    depends_on:
+      - booking-db
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+    - "8025:8025"
+    - "1025:1025"
+    networks:
+      - customnetwork
+
+  booking-db:
+    image: postgres:16
+    container_name: booking-db
+    environment:
+      POSTGRES_DB: bookingdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ./db-data/booking:/var/lib/postgresql/data
+    networks:
+      - customnetwork
+
+
+  # ============================================================
+  # ROOM-SERVICE (Cloudinary)
+  # ============================================================
+  room-service:
+    container_name: room-service
+    build: ./backend/room-service
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      DB_HOST: room-db
+      DB_PORT: 5432
+      DB_NAME: roomdb
+      DB_USER: postgres
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SEC: ${JWT_SEC}
+      JWT_REFRESH_SEC: ${JWT_REFRESH_SEC}
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
+      CLOUDINARY_SECRET_KEY: ${CLOUDINARY_SECRET_KEY}
+      CLOUDINARY_FOLDER: ${CLOUDINARY_FOLDER}
+    depends_on:
+      - room-db
+    networks:
+      - customnetwork
+
+  room-db:
+    image: postgres:16
+    container_name: room-db
+    environment:
+      POSTGRES_DB: roomdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ./db-data/room:/var/lib/postgresql/data
+    networks:
+      - customnetwork
+
+
+  # ============================================================
+  # PRICE-SERVICE
+  # ============================================================
+  price-service:
+    container_name: price-service
+    build: ./backend/price-service
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      DB_HOST: price-db
+      DB_PORT: 5432
+      DB_NAME: pricedb
+      DB_USER: postgres
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SEC: ${JWT_SEC}
+      JWT_REFRESH_SEC: ${JWT_REFRESH_SEC}
+    depends_on:
+      - price-db
+    networks:
+      - customnetwork
+
+  price-db:
+    image: postgres:16
+    container_name: price-db
+    environment:
+      POSTGRES_DB: pricedb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ./db-data/price:/var/lib/postgresql/data
+    networks:
+      - customnetwork
+
+
+  # ============================================================
+  # API-GATEWAY
+  # ============================================================
+  api-gateway:
+    container_name: api-gateway
+    build: ./api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - user-service
+      - booking-service
+      - room-service
+      - price-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    networks:
+      - customnetwork
+
+
+  # ============================================================
+  # PGADMIN
+  # ============================================================
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    ports:
+      - "15433:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: roman.rostock@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: ${DB_PASSWORD}
+    depends_on:
+      - user-db
+      - booking-db
+      - room-db
+      - price-db
+    networks:
+      - customnetwork
+  frontend:
+    build:
+      context: ./frontend/booking_plattform
+      dockerfile: Dockerfile
+    networks:
+      - public
+    depends_on:
+      - api-gateway
+    volumes:
+      - ./build:/app/build
+    restart: always
+    ports:
+      - "4200:4200"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: '2G'
+
+networks:
+  customnetwork:
+    driver: bridge
