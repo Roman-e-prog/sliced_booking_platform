@@ -16,12 +16,17 @@ jobs:
 
     strategy:
       matrix:
-        service:
-          - backend/user-service
-          - backend/booking-service
-          - backend/room-service
-          - backend/price-service
-          - api-gateway
+        include:
+        - service: backend/user-service
+          repo: sliced-backend-user-service
+        - service: backend/booking-service
+          repo: sliced-backend-booking-service
+        - service: backend/room-service
+          repo: sliced-backend-room-service
+        - service: backend/price-service
+          repo: sliced-backend-price-service
+        - service: api-gateway
+          repo: sliced-api-gateway
 
     steps:
       - name: Checkout repository
@@ -55,12 +60,17 @@ jobs:
 
     strategy:
       matrix:
-        service:
-          - backend/user-service
-          - backend/booking-service
-          - backend/room-service
-          - backend/price-service
-          - api-gateway
+        include:
+          - service: backend/user-service
+            repo: sliced-backend-user-service
+          - service: backend/booking-service
+            repo: sliced-backend-booking-service
+          - service: backend/room-service
+            repo: sliced-backend-room-service
+          - service: backend/price-service
+            repo: sliced-backend-price-service
+          - service: api-gateway
+            repo: sliced-api-gateway
 
     steps:
       - name: Checkout repository
@@ -82,8 +92,10 @@ jobs:
           file: ${{ matrix.service }}/Dockerfile
           push: true
           tags: |
-            ${{ secrets.DOCKER_USERNAME }}/sliced-${{ matrix.service }}:latest
-            ${{ secrets.DOCKER_USERNAME }}/sliced-${{ matrix.service }}:${{ github.sha }}
+           ${{ secrets.DOCKER_USERNAME }}/${{ matrix.repo }}:latest
+           ${{ secrets.DOCKER_USERNAME }}/${{ matrix.repo }}:${{ github.sha }}
+
+
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
