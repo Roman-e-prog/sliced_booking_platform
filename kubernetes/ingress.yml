@@ -3,13 +3,8 @@ kind: Ingress
 metadata:
   name: sliced-ingress
   annotations:
-    # Wichtig für Angular / SPA Routing
     nginx.ingress.kubernetes.io/rewrite-target: /$1
-
-    # Optional: CORS, falls dein Gateway es nicht selbst macht
     nginx.ingress.kubernetes.io/enable-cors: "true"
-
-    # Optional: größere Payloads erlauben
     nginx.ingress.kubernetes.io/proxy-body-size: "10m"
 
 spec:
@@ -17,10 +12,6 @@ spec:
   - host: slicedbooking.local
     http:
       paths:
-
-      # ---------------------------------------------------------
-      # 1. Frontend (Angular / SPA)
-      # ---------------------------------------------------------
       - path: /(.*)
         pathType: ImplementationSpecific
         backend:
@@ -29,9 +20,6 @@ spec:
             port:
               number: 80
 
-      # ---------------------------------------------------------
-      # 2. API-Gateway (alle Backend-Routen)
-      # ---------------------------------------------------------
       - path: /api(/|$)(.*)
         pathType: ImplementationSpecific
         backend:

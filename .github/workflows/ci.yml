@@ -34,9 +34,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # --------------------------------------------------------
-      # Backend + API-Gateway Build (Java)
-      # --------------------------------------------------------
       - name: Set up JDK 21
         if: startsWith(matrix.service, 'backend') || matrix.service == 'api-gateway'
         uses: actions/setup-java@v4
@@ -58,9 +55,6 @@ jobs:
         working-directory: ${{ matrix.service }}
         run: mvn -q -DskipTests package
 
-      # --------------------------------------------------------
-      # Frontend Build (Angular)
-      # --------------------------------------------------------
       - name: Build frontend
         if: startsWith(matrix.service, 'frontend')
         working-directory: frontend/booking_platform
@@ -116,27 +110,3 @@ jobs:
             ${{ secrets.DOCKER_USERNAME }}/${{ matrix.repo }}:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
-
-  # ============================================================
-  # 3. KUBERNETES DEPLOY (APPLY ALL MANIFESTS)
-  # ============================================================
-  deploy:
-    needs: docker
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up kubectl
-        uses: azure/setup-kubectl@v3
-
-      - name: Authenticate to Kubernetes
-        run: |
-          echo "${{ secrets.KUBECONFIG }}" > kubeconfig
-          export KUBECONFIG=./kubeconfig
-
-      - name: Apply Kubernetes manifests (recursive)
-        run: kubectl apply -R -f kubernetes/
