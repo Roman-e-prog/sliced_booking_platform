@@ -1,20 +1,30 @@
+# ---------------------------------------------------------
 # Build Stage
-FROM node:21-alpine as build
-# Install angular cli
-RUN npm install -g @angular/cli
+# ---------------------------------------------------------
+FROM node:21-alpine AS build
 WORKDIR /app
 
-# Copy package.json and package-lock.json
-COPY package.json package-lock.json ./
+# Copy package files
+COPY package*.json ./
 
 # Install dependencies
-RUN npm install --silent
+RUN npm install
 
 # Copy the entire project
 COPY . .
 
-# Production Stage
-FROM nginx:stable-alpine as production
-COPY --from=build /app/frontend/build /usr/share/nginx/html
-EXPOSE 3000
+# Build Angular app
+RUN npm run build
+
+# ---------------------------------------------------------
+# Production Stage (NGINX)
+# ---------------------------------------------------------
+FROM nginx:stable-alpine AS production
+
+# Copy Angular build output
+COPY --from=build /app/dist /usr/share/nginx/html
+
+# Expose port 80 (NGINX default)
+EXPOSE 80
+
 CMD ["nginx", "-g", "daemon off;"]
