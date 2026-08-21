@@ -9,7 +9,7 @@ on:
 jobs:
 
   # ============================================================
-  # 1. BUILD & TEST ALL MICROSERVICES
+  # 1. BUILD ALL MICROSERVICES + FRONTEND
   # ============================================================
   build:
     runs-on: ubuntu-latest
@@ -27,18 +27,25 @@ jobs:
           repo: sliced-backend-price-service
         - service: api-gateway
           repo: sliced-api-gateway
+        - service: frontend
+          repo: sliced-frontend
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # --------------------------------------------------------
+      # Backend + API-Gateway Build (Java)
+      # --------------------------------------------------------
       - name: Set up JDK 21
+        if: startsWith(matrix.service, 'backend') || matrix.service == 'api-gateway'
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '21'
 
       - name: Cache Maven packages
+        if: startsWith(matrix.service, 'backend') || matrix.service == 'api-gateway'
         uses: actions/cache@v4
         with:
           path: ~/.m2
@@ -46,13 +53,24 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Build service with Maven
+      - name: Build backend service
+        if: startsWith(matrix.service, 'backend') || matrix.service == 'api-gateway'
         working-directory: ${{ matrix.service }}
         run: mvn -q -DskipTests package
 
+      # --------------------------------------------------------
+      # Frontend Build (Angular)
+      # --------------------------------------------------------
+      - name: Build frontend
+        if: matrix.service == 'frontend'
+        working-directory: frontend
+        run: |
+          npm install
+          npm run build
+
 
   # ============================================================
-  # 2. DOCKER BUILD & PUSH
+  # 2. DOCKER BUILD & PUSH (ALL SERVICES + FRONTEND)
   # ============================================================
   docker:
     needs: build
@@ -71,6 +89,8 @@ jobs:
             repo: sliced-backend-price-service
           - service: api-gateway
             repo: sliced-api-gateway
+          - service: frontend
+            repo: sliced-frontend
 
     steps:
       - name: Checkout repository
@@ -92,16 +112,14 @@ jobs:
           file: ${{ matrix.service }}/Dockerfile
           push: true
           tags: |
-           ${{ secrets.DOCKER_USERNAME }}/${{ matrix.repo }}:latest
-           ${{ secrets.DOCKER_USERNAME }}/${{ matrix.repo }}:${{ github.sha }}
-
-
+            ${{ secrets.DOCKER_USERNAME }}/${{ matrix.repo }}:latest
+            ${{ secrets.DOCKER_USERNAME }}/${{ matrix.repo }}:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
 
   # ============================================================
-  # 3. OPTIONAL: DEPLOYMENT JOB (z. B. Server, VM, Swarm, K8s)
+  # 3. KUBERNETES DEPLOY (APPLY ALL MANIFESTS)
   # ============================================================
   deploy:
     needs: docker
@@ -109,5 +127,16 @@ jobs:
     if: github.ref == 'refs/heads/master'
 
     steps:
-      - name: Deployment placeholder
-        run: echo "Deployment step will be added later."
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Authenticate to Kubernetes
+        run: |
+          echo "${{ secrets.KUBECONFIG }}" > kubeconfig
+          export KUBECONFIG=./kubeconfig
+
+      - name: Apply Kubernetes manifests (recursive)
+        run: kubectl apply -R -f kubernetes/
