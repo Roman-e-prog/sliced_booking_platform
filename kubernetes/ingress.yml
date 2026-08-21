@@ -1,0 +1,41 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: sliced-ingress
+  annotations:
+    # Wichtig für Angular / SPA Routing
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+
+    # Optional: CORS, falls dein Gateway es nicht selbst macht
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+
+    # Optional: größere Payloads erlauben
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+
+spec:
+  rules:
+  - host: <YOUR-HOSTNAME-OR-IP>
+    http:
+      paths:
+
+      # ---------------------------------------------------------
+      # 1. Frontend (Angular / SPA)
+      # ---------------------------------------------------------
+      - path: /(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend
+            port:
+              number: 80
+
+      # ---------------------------------------------------------
+      # 2. API-Gateway (alle Backend-Routen)
+      # ---------------------------------------------------------
+      - path: /api(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: api-gateway
+            port:
+              number: 8080

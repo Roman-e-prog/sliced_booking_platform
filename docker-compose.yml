@@ -84,7 +84,7 @@ services:
     container_name: room-service
     build: ./backend/room-service
     ports:
-      - "8082:8082"
+      - "8083:8083"
     environment:
       SPRING_PROFILES_ACTIVE: docker
       DB_HOST: room-db
@@ -123,7 +123,7 @@ services:
     container_name: price-service
     build: ./backend/price-service
     ports:
-      - "8083:8083"
+      - "8082:8082"
     environment:
       SPRING_PROFILES_ACTIVE: docker
       DB_HOST: price-db
