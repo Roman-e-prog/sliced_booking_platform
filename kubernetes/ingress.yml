@@ -22,7 +22,7 @@ spec:
       # 1. Frontend (Angular / SPA)
       # ---------------------------------------------------------
       - path: /(.*)
-        pathType: Prefix
+        pathType: ImplementationSpecific
         backend:
           service:
             name: frontend
@@ -33,7 +33,7 @@ spec:
       # 2. API-Gateway (alle Backend-Routen)
       # ---------------------------------------------------------
       - path: /api(/|$)(.*)
-        pathType: Prefix
+        pathType: ImplementationSpecific
         backend:
           service:
             name: api-gateway
