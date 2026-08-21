@@ -10,7 +10,7 @@ COPY package*.json ./
 # Install dependencies
 RUN npm install
 
-# Copy the entire project
+# Copy the entire Angular project
 COPY . .
 
 # Build Angular app

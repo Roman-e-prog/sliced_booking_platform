@@ -27,7 +27,7 @@ jobs:
           repo: sliced-backend-price-service
         - service: api-gateway
           repo: sliced-api-gateway
-        - service: frontend
+        - service: frontend/booking_platform
           repo: sliced-frontend
 
     steps:
@@ -62,8 +62,8 @@ jobs:
       # Frontend Build (Angular)
       # --------------------------------------------------------
       - name: Build frontend
-        if: matrix.service == 'frontend'
-        working-directory: frontend
+        if: startsWith(matrix.service, 'frontend')
+        working-directory: frontend/booking_platform
         run: |
           npm install
           npm run build
@@ -89,7 +89,7 @@ jobs:
             repo: sliced-backend-price-service
           - service: api-gateway
             repo: sliced-api-gateway
-          - service: frontend
+          - service: frontend/booking_platform
             repo: sliced-frontend
 
     steps:
