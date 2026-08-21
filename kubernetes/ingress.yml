@@ -14,7 +14,7 @@ metadata:
 
 spec:
   rules:
-  - host: <HOSTNAME-OR-IP>
+  - host: slicedbooking.local
     http:
       paths:
 
