@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: api-gateway
-          image: romanarmin/sliced-backend-api-gateway:latest
+          image: romanarmin/sliced-api-gateway:latest
           ports:
             - containerPort: 8080
           resources:
