@@ -14,7 +14,7 @@ metadata:
 
 spec:
   rules:
-  - host: <YOUR-HOSTNAME-OR-IP>
+  - host: <HOSTNAME-OR-IP>
     http:
       paths:
 
