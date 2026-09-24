@@ -9,42 +9,22 @@ on:
 jobs:
 
   # ============================================================
-  # 1. BUILD ALL MICROSERVICES + FRONTEND + EVENT-MODELS
+  # 1. BUILD ALL MICROSERVICES + EVENT-MODELS + FRONTEND
   # ============================================================
   build:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        include:
-        - service: event-models
-          repo: sliced-event-models
-        - service: backend/user-service
-          repo: sliced-backend-user-service
-        - service: backend/booking-service
-          repo: sliced-backend-booking-service
-        - service: backend/room-service
-          repo: sliced-backend-room-service
-        - service: backend/price-service
-          repo: sliced-backend-price-service
-        - service: api-gateway
-          repo: sliced-api-gateway
-        - service: frontend/booking_platform
-          repo: sliced-frontend
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up JDK 21
-        if: startsWith(matrix.service, 'backend') || matrix.service == 'api-gateway' || matrix.service == 'event-models'
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '21'
 
       - name: Cache Maven packages
-        if: startsWith(matrix.service, 'backend') || matrix.service == 'api-gateway' || matrix.service == 'event-models'
         uses: actions/cache@v4
         with:
           path: ~/.m2
@@ -52,14 +32,40 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      # Wichtig: event-models wird gebaut und installiert
-      - name: Build backend service
-        if: startsWith(matrix.service, 'backend') || matrix.service == 'api-gateway' || matrix.service == 'event-models'
-        working-directory: ${{ matrix.service }}
+      # ------------------------------------------------------------
+      # 1. Build & install event-models FIRST
+      # ------------------------------------------------------------
+      - name: Build event-models
+        working-directory: event-models
         run: mvn -q -DskipTests install
 
+      # ------------------------------------------------------------
+      # 2. Build backend services
+      # ------------------------------------------------------------
+      - name: Build user-service
+        working-directory: backend/user-service
+        run: mvn -q -DskipTests package
+
+      - name: Build booking-service
+        working-directory: backend/booking-service
+        run: mvn -q -DskipTests package
+
+      - name: Build room-service
+        working-directory: backend/room-service
+        run: mvn -q -DskipTests package
+
+      - name: Build price-service
+        working-directory: backend/price-service
+        run: mvn -q -DskipTests package
+
+      - name: Build api-gateway
+        working-directory: api-gateway
+        run: mvn -q -DskipTests package
+
+      # ------------------------------------------------------------
+      # 3. Build frontend
+      # ------------------------------------------------------------
       - name: Build frontend
-        if: startsWith(matrix.service, 'frontend')
         working-directory: frontend/booking_platform
         run: |
           npm install
@@ -72,22 +78,6 @@ jobs:
   docker:
     needs: build
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        include:
-          - service: backend/user-service
-            repo: sliced-backend-user-service
-          - service: backend/booking-service
-            repo: sliced-backend-booking-service
-          - service: backend/room-service
-            repo: sliced-backend-room-service
-          - service: backend/price-service
-            repo: sliced-backend-price-service
-          - service: api-gateway
-            repo: sliced-api-gateway
-          - service: frontend/booking_platform
-            repo: sliced-frontend
 
     steps:
       - name: Checkout repository
@@ -102,17 +92,21 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build & Push Docker Image
-        uses: docker/build-push-action@v5
-        with:
-          context: ${{ matrix.service }}
-          file: ${{ matrix.service }}/Dockerfile
-          push: true
-          tags: |
-            ${{ secrets.DOCKER_USERNAME }}/${{ matrix.repo }}:latest
-            ${{ secrets.DOCKER_USERNAME }}/${{ matrix.repo }}:${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+      - name: Build & Push Docker Images
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-user-service:latest backend/user-service
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-booking-service:latest backend/booking-service
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-room-service:latest backend/room-service
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-price-service:latest backend/price-service
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-api-gateway:latest api-gateway
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-frontend:latest frontend/booking_platform
+
+          docker push ${{ secrets.DOCKER_USERNAME }}/sliced-backend-user-service:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/sliced-backend-booking-service:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/sliced-backend-room-service:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/sliced-backend-price-service:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/sliced-api-gateway:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/sliced-frontend:latest
 
 
   # ============================================================
