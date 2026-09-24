@@ -9,7 +9,7 @@ on:
 jobs:
 
   # ============================================================
-  # 1. BUILD ALL MICROSERVICES + FRONTEND
+  # 1. BUILD ALL MICROSERVICES + FRONTEND + EVENT-MODELS
   # ============================================================
   build:
     runs-on: ubuntu-latest
@@ -27,6 +27,8 @@ jobs:
           repo: sliced-backend-price-service
         - service: api-gateway
           repo: sliced-api-gateway
+        - service: event-models
+          repo: sliced-event-models
         - service: frontend/booking_platform
           repo: sliced-frontend
 
@@ -35,14 +37,14 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up JDK 21
-        if: startsWith(matrix.service, 'backend') || matrix.service == 'api-gateway'
+        if: startsWith(matrix.service, 'backend') || matrix.service == 'api-gateway' || matrix.service == 'event-models'
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '21'
 
       - name: Cache Maven packages
-        if: startsWith(matrix.service, 'backend') || matrix.service == 'api-gateway'
+        if: startsWith(matrix.service, 'backend') || matrix.service == 'api-gateway' || matrix.service == 'event-models'
         uses: actions/cache@v4
         with:
           path: ~/.m2
@@ -51,7 +53,7 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Build backend service
-        if: startsWith(matrix.service, 'backend') || matrix.service == 'api-gateway'
+        if: startsWith(matrix.service, 'backend') || matrix.service == 'api-gateway' || matrix.service == 'event-models'
         working-directory: ${{ matrix.service }}
         run: mvn -q -DskipTests package
 
@@ -110,3 +112,25 @@ jobs:
             ${{ secrets.DOCKER_USERNAME }}/${{ matrix.repo }}:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+
+  # ============================================================
+  # 3. DEPLOY TO SERVER (SSH)
+  # ============================================================
+  deploy:
+    needs: docker
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+
+    steps:
+      - name: SSH into server and deploy
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            cd /home/roman/booking-platform
+            git pull
+            docker compose pull
+            docker compose up -d
