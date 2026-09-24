@@ -18,7 +18,7 @@ public class PriceClient {
 
         try {
             PriceResponse response = webClient.get()
-                    .uri("/price/{roomType}/{bookingType}", roomType, bookingType)
+                    .uri("/prices/{roomType}/{bookingType}", roomType, bookingType)
                     .retrieve()
                     .bodyToMono(PriceResponse.class)
                     .timeout(Duration.ofSeconds(2))

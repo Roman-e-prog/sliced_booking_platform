@@ -7,10 +7,18 @@ spring:
 
   cloud:
     gateway:
-
       default-filters:
-        - DedupeResponseHeader=Access-Control-Allow-Credentials, RETAIN_FIRST
-        - DedupeResponseHeader=Access-Control-Allow-Origin, RETAIN_FIRST
+        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials Vary, RETAIN_FIRST
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:4200"
+            allowedMethods:
+              - "*"
+            allowedHeaders:
+              - "*"
+            allowCredentials: true
 
       routes:
 

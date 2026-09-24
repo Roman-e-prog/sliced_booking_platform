@@ -53,9 +53,7 @@ public class AuthenticationService {
         user.setPostalCode(request.postalCode);
         user.setTown(request.town);
         user.setCountry(request.country);
-        LocalDate parsedDate = Instant.parse(request.birthDate)
-                .atZone(ZoneId.systemDefault())
-                .toLocalDate();
+        LocalDate parsedDate = LocalDate.parse(request.birthDate);
 
         user.setBirthDate(parsedDate);
         user.setPassword(passwordEncoder.encode(request.password));
@@ -92,7 +90,7 @@ public class AuthenticationService {
 
         // 8. Return access token in body
         return new AuthResponse(accessToken,new UserResponse(
-                user.getId(),
+                user.getUserId(),
                 user.getPrename(),
                 user.getLastname(),
                 user.getUsername(),
@@ -129,7 +127,7 @@ public class AuthenticationService {
 
         // 6. Return the new access token
         return new AuthResponse(newAccessToken, new UserResponse(
-                user.getId(),
+                user.getUserId(),
                 user.getPrename(),
                 user.getLastname(),
                 user.getUsername(),

@@ -17,7 +17,8 @@ import com.roman.room_service.roomsetting.model.RoomImages;
 import com.roman.room_service.roomsetting.repository.RoomRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
+import com.roman.events.RoomAvailabilityEvent;
+import org.springframework.kafka.annotation.KafkaListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

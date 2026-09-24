@@ -59,7 +59,7 @@ public class RefreshTokenService {
     }
 
     public void revokeUserTokens(User user) {
-        refreshTokenRepository.revokeAllTokensForUser(user.getId());
+        refreshTokenRepository.revokeAllTokensForUser(user.getUserId());
     }
 
     public void deleteByToken(String token) {

@@ -25,7 +25,7 @@ public class PriceClientConfig {
                 );
 
         return WebClient.builder()
-                .baseUrl("http://localhost:8085")
+                .baseUrl("http://localhost:8082")
                 .clientConnector(new ReactorClientHttpConnector(httpClient))
                 .build();
     }

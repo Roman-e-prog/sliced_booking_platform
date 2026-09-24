@@ -1,6 +1,6 @@
 package com.roman.user_service.user.service;
 
-import com.roman.user_service.events.EventPublisher;
+import com.roman.user_service.kafka.EventPublisher;
 import com.roman.user_service.user.dto.UserRequest;
 import com.roman.user_service.user.model.User;
 import com.roman.user_service.user.repository.UserRepository;
@@ -27,7 +27,7 @@ public class UserServiceTest {
     void should_update_a_User(){
         //I need first an existing to update this
         User existing = new User();
-        existing.setId(1L);
+        existing.setUserId(1L);
         existing.setPrename("Roman");
         existing.setLastname("Testname");
         existing.setUsername("TestRoman");
@@ -73,9 +73,9 @@ public class UserServiceTest {
     void should_delete_the_user(){
         //I need first an existing to delete this
         User existing = new User();
-        existing.setId(1L);
+        existing.setUserId(1L);
         when(userRepository.findById(1L)).thenReturn(Optional.of(existing));
-        userService.deleteUser(existing.getId());
+        userService.deleteUser(existing.getUserId());
         verify(userRepository).delete(existing);
     }
 }

@@ -66,7 +66,7 @@ public class AuthControllerTest {
                 .thenReturn(user);
         // Act + Assert: perform HTTP POST
         mockMvc.perform(
-                        post("/auth/register")
+                        post("/api/auth/register")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(request))
                 )
@@ -88,7 +88,7 @@ public class AuthControllerTest {
                 .thenReturn(authResponse);
         // Act + Assert: perform HTTP POST
         mockMvc.perform(
-                        post("/auth/login")
+                        post("/api/auth/login")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(loginRequest))
                 )
@@ -110,7 +110,7 @@ public class AuthControllerTest {
 
         // Act + Assert
         mockMvc.perform(
-                        post("/auth/passwordReset")
+                        post("/api/auth/passwordReset")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(request))
                 )
@@ -130,7 +130,7 @@ public class AuthControllerTest {
         doNothing().when(passwordResetTokenService).changePassword(any(PasswordResetDTO.class));
 
         mockMvc.perform(
-                        post("/auth/changePassword")
+                        post("/api/auth/changePassword")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(dto))
                 )

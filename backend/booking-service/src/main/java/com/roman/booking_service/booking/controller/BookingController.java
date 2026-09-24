@@ -49,7 +49,8 @@ public class BookingController {
     public ResponseEntity<BookingResponse> updateBooking(
             @PathVariable Long bookingId,
             @Valid @RequestBody BookingRequest bookingRequest){
-
+                System.out.println("Received booking update request for bookingId: " + bookingId);
+                System.out.println("BookingRequest: " + bookingRequest);
         Booking updated = bookingService.updateBooking(bookingId, bookingRequest);
         BookingResponse response = bookingMapper.toResponse(updated);
 

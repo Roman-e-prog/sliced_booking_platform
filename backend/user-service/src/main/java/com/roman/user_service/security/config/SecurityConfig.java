@@ -20,12 +20,13 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.List;
 
 @Configuration
-@EnableWebSecurity //enables spring security
+@EnableWebSecurity
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final AuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final AccessDeniedHandler jwtAccessDeniedHandler;
+
     public SecurityConfig(
             JwtAuthenticationFilter jwtAuthenticationFilter,
             CustomUserDetailsService userDetailsService,
@@ -42,27 +43,30 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-                .csrf(csrf -> csrf.disable()) //jwt is not vulnerable to csrf, I am stateless
+                .csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
                 .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS) //tells spring not to build
-                        // a session, because of jwt
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()   // register, login, logout
-                        .anyRequest().authenticated()              // everything else requires JWT
+                        // User-Service Auth-Endpunkte
+                        .requestMatchers("/api/auth/**").permitAll()
+
+                        // Token-Validierung für Fachservices freigeben
+                        .requestMatchers("/securityService/**").permitAll()
+                        .requestMatchers("/userService/**").permitAll()
+                        // alles andere braucht JWT
+                        .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                         .accessDeniedHandler(jwtAccessDeniedHandler)
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-                //Before Spring tries to authenticate with username/password,
-                //run my custom JWT filter to check the Authorization header.
 
         return http.build();
     }
-    //I need to disable cors for the client, when client runs on another port
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
@@ -76,6 +80,4 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", config);
         return source;
     }
-
-
 }

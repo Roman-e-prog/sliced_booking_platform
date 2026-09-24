@@ -16,11 +16,15 @@ spring:
       group-id: booking-service-group
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+       spring.json.trusted.packages: com.roman.events
     listener:
       ack-mode: record
 
 logging:
   level:
+    org.springframework.security: DEBUG
+    org.springframework.boot.autoconfigure.security: DEBUG
     root: INFO
   pattern:
     level: "%5p [requestId=%X{requestId}, traceId=%X{traceId}, spanId=%X{spanId}]"

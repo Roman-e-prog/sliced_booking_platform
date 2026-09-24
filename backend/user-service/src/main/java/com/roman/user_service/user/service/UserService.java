@@ -1,14 +1,14 @@
 package com.roman.user_service.user.service;
 
 
-import com.roman.user_service.events.UserDeletedEvent;
+import com.roman.events.UserDeletedEvent;
 import com.roman.user_service.exceptions.NotFoundException;
 import com.roman.user_service.user.dto.UserRequest;
 import com.roman.user_service.user.model.User;
 import com.roman.user_service.user.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import com.roman.user_service.events.EventPublisher;
+import com.roman.user_service.kafka.EventPublisher;
 import java.time.LocalDateTime;
 import java.util.List;
 @Service

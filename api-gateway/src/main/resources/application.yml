@@ -7,14 +7,24 @@ spring:
 
   cloud:
     gateway:
-
-      # -----------------------------------------
-      # 1. GLOBAL FILTERS (Request-ID, Logging, Bulkhead)
-      # -----------------------------------------
       default-filters:
-        - DedupeResponseHeader=Access-Control-Allow-Credentials, RETAIN_FIRST
-        - DedupeResponseHeader=Access-Control-Allow-Origin, RETAIN_FIRST
-        # Bulkhead ist ein GlobalFilter → NICHT hier eintragen
+        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials Vary, RETAIN_FIRST
+      globalcors:
+        add-to-simple-url-handler-mapping: true
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:4200"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders:
+              - "Content-Type"
+              - "Authorization"
+            allowCredentials: true
 
       # -----------------------------------------
       # 2. ROUTES
@@ -44,6 +54,11 @@ spring:
           predicates:
             - Path=/api/booking/**
           filters:
+            - StripPrefix=0
+            - name: DedupeResponseHeader
+              args:
+               name: Access-Control-Allow-Origin Access-Control-Allow-Credentials Vary
+               strategy: RETAIN_FIRST
             - name: RequestRateLimiter
               args:
                 redis-rate-limiter.replenishRate: 100
@@ -70,13 +85,17 @@ spring:
         - id: room-service
           uri: http://localhost:8083
           predicates:
-            - Path=/api/room/**
+            - Path=/api/rooms/**
+          filters:
+            - StripPrefix=0
 
         # PRICE SERVICE
         - id: price-service
           uri: http://localhost:8082
           predicates:
-            - Path=/api/price/**
+            - Path=/api/priceSetting/**
+          filters:
+            - StripPrefix=0
 
     # -----------------------------------------
     # 3. LOAD BALANCER CONFIG (Pflicht für lb://)

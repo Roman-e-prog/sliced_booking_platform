@@ -41,7 +41,7 @@ public class UserControllerTest {
     @Test
     void should_update_user() throws Exception{
         User existing = new User();
-        existing.setId(1L);
+        existing.setUserId(1L);
         existing.setPrename("Roman");
         existing.setLastname("TestName");
         existing.setUsername("TestRoman");
@@ -65,7 +65,7 @@ public class UserControllerTest {
 
         // Act + Assert
         mockMvc.perform(
-                        put("/user/{userId}", 1L)
+                        put("/api/user/{userId}", 1L)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(userRequest))
                 )
@@ -76,7 +76,7 @@ public class UserControllerTest {
     @Test
     void should_find_one_user() throws Exception{
         User existing = new User();
-        existing.setId(1L);
+        existing.setUserId(1L);
         existing.setPrename("Roman");
         existing.setLastname("TestName");
         existing.setUsername("TestRoman");
@@ -90,7 +90,7 @@ public class UserControllerTest {
                 .thenReturn(existing);
 
         // Act + Assert
-        mockMvc.perform(get("/user/{userId}", 1L))
+        mockMvc.perform(get("/api/user/{userId}", 1L))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 // Optional: assert JSON fields
@@ -107,7 +107,7 @@ public class UserControllerTest {
     @Test
     void should_find_all_users() throws Exception{
         User existing = new User();
-        existing.setId(1L);
+        existing.setUserId(1L);
         existing.setPrename("Roman");
         existing.setLastname("TestName");
         existing.setUsername("TestRoman");
@@ -118,7 +118,7 @@ public class UserControllerTest {
         existing.setCountry("TestCountry");
 
         User existing2 = new User();
-        existing2.setId(2L);
+        existing2.setUserId(2L);
         existing2.setPrename("Roman2");
         existing2.setLastname("TestName2");
         existing2.setUsername("TestRoman2");
@@ -133,7 +133,7 @@ public class UserControllerTest {
 
 
         // Act + Assert
-        mockMvc.perform(get("/user/all"))
+        mockMvc.perform(get("/api/user/all"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.length()").value(2));
@@ -141,10 +141,10 @@ public class UserControllerTest {
     @Test
     void should_delete_a_user() throws Exception{
         User user = new User();
-        user.setId(1L);
+        user.setUserId(1L);
         doNothing().when(userService).deleteUser(1L);
         //act and assert
-        mockMvc.perform(delete("/user/{userId}", 1L))
+        mockMvc.perform(delete("/api/user/{userId}", 1L))
                 .andExpect(status().is(204));
         verify(userService, times(1)).deleteUser(eq(1L));
 

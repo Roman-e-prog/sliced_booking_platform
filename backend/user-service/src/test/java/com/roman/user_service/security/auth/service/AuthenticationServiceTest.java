@@ -149,7 +149,7 @@ class AuthenticationServiceTest {
                 () -> authenticationService.login(loginRequest, response)
         );
 
-        assertEquals("User not found", exception.getMessage());
+        assertEquals("Invalid email or password", exception.getMessage());
 
         verify(userRepository).findByEmail("roman@test.com");
         verify(passwordEncoder, never()).matches(any(), any());
@@ -181,7 +181,7 @@ class AuthenticationServiceTest {
                 () -> authenticationService.login(loginRequest, response)
         );
 
-        assertEquals("Invalid password", exception.getMessage());
+        assertEquals("Invalid email or password", exception.getMessage());
 
         // Verify behavior
         verify(userRepository).findByEmail("roman@example.com");

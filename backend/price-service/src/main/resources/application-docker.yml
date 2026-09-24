@@ -11,6 +11,21 @@ spring:
     hibernate:
       ddl-auto: update
 
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
+    consumer:
+      properties:
+        spring.json.trusted.packages: com.roman.events
+    producer:
+      acks: 1
+      retries: 0
+      properties:
+        enable.idempotence: false
+
+  redis:
+    host: ${REDIS_HOST:redis}
+    port: ${REDIS_PORT:6379}
+
 logging:
   level:
     root: INFO
@@ -26,4 +41,4 @@ management:
 
   zipkin:
     tracing:
-      endpoint: http://${ZIPKIN_HOST:localhost}:${ZIPKIN_PORT:9411}/api/v2/spans
+      endpoint: http://${ZIPKIN_HOST:zipkin}:${ZIPKIN_PORT:9411}/api/v2/spans

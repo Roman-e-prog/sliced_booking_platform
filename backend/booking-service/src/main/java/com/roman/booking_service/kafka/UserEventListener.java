@@ -1,9 +1,9 @@
-package com.roman.booking_service.events;
+package com.roman.booking_service.kafka;
 
 import com.roman.booking_service.booking.repository.BookingRepository;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
-
+import com.roman.events.UserDeletedEvent;
 @Component
 public class UserEventListener {
 

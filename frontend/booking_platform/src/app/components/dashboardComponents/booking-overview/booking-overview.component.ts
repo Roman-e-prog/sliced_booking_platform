@@ -17,9 +17,7 @@ import { BookingEditComponent } from '../../editComponents/booking-edit/booking-
   styleUrl: './booking-overview.component.scss'
 })
 export class BookingOverviewComponent {
-handleClose() {
-throw new Error('Method not implemented.');
-}
+
   constructor(
     private store: Store,
     private snackBar: MatSnackBar,
@@ -58,4 +56,9 @@ throw new Error('Method not implemented.');
     handleDelete = (id:number)=>{
       this.store.dispatch(deleteBooking({id:id}))
     }
+    handleClose() {
+      this.editModule = false;
+      this.editData = null;
+    }
+
 }

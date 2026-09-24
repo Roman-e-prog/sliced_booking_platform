@@ -19,6 +19,7 @@ import com.roman.booking_service.exceptions.PriceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.roman.booking_service.services.EmailService;
+import com.roman.booking_service.exceptions.RoomNotAvailableException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -78,7 +79,7 @@ public class BookingService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Long userId = (Long) auth.getPrincipal();
         UserResponse user = userClient.fetchUserById(userId);
-
+        System.out.println("fetched user: " + user);
         Booking booking = new Booking();
 
         booking.setUserId(user.userId()); // 2. User automatisch setzen
@@ -129,7 +130,7 @@ public class BookingService {
     // ----------------------------- //
     // UPDATE // 
     // ----------------------------- 
-   @Transactional
+ @Transactional
 public Booking updateBooking(Long bookingId, BookingRequest request) {
 
     Booking booking = bookingRepository.findById(bookingId)
@@ -138,23 +139,32 @@ public Booking updateBooking(Long bookingId, BookingRequest request) {
     // Admin weist Zimmer zu
     if (request.getRoomNumber() != null) {
 
+        // 1) booking-service prüft, ob Zimmer verfügbar ist
         RoomResponse room = roomClient.fetchRoomByNumber(request.getRoomNumber());
-        if (room == null || !room.isAvailable()) {
+        if (room == null) {
+            // Zimmer existiert nicht oder ist bereits belegt
             throw new RoomNumberNotFoundException(request.getRoomNumber());
         }
-        // Zimmer belegen
+        if (!room.isAvailable()) {
+            throw new RoomNotAvailableException(request.getRoomNumber());
+        }
+
+        // 2) Zimmer ist verfügbar → jetzt belegen
         boolean updated = roomClient.updateRoomAvailability(request.getRoomNumber(), false);
-        if(!updated){
+
+        // 3) Prüfen, ob PATCH erfolgreich war
+        if (!updated) {
             throw new IllegalStateException("Raumvergabe hat nicht funktioniert");
         }
-        else{
-            // Zimmernummer in Buchung setzen
-            booking.setRoomNumber(request.getRoomNumber());
-        }
+
+        // 4) Zimmernummer in Buchung setzen
+        booking.setRoomNumber(request.getRoomNumber());
     }
-    // user holen
-       UserResponse user = userClient.fetchUserById(booking.getUserId());
-    // Buchungsdaten aktualisieren
+
+    // 5) User holen
+    UserResponse user = userClient.fetchUserById(booking.getUserId());
+
+    // 6) Buchungsdaten aktualisieren
     booking.setStartDate(LocalDate.parse(request.getStartDate()));
     booking.setEndDate(LocalDate.parse(request.getEndDate()));
     booking.setNumberOfPersons(request.getNumberOfPersons());
@@ -162,41 +172,41 @@ public Booking updateBooking(Long bookingId, BookingRequest request) {
     booking.setUserType(request.getUserType());
     booking.setRoomType(request.getRoomType());
 
-    // Preis neu berechnen
-       // Preisberechnung
-       String roomType = String.valueOf(booking.getRoomType());
-       String bookingType = String.valueOf(booking.getBookingType());
-       PriceResponse priceConfig = priceClient
-               .findByRoomTypeAndBookingType(roomType, bookingType)
-               .orElseThrow(() -> new PriceNotFoundException(
-                       booking.getRoomType(), booking.getBookingType()));
+    // 7) Preis neu berechnen
+    String roomType = String.valueOf(booking.getRoomType());
+    String bookingType = String.valueOf(booking.getBookingType());
+    PriceResponse priceConfig = priceClient
+            .findByRoomTypeAndBookingType(roomType, bookingType)
+            .orElseThrow(() -> new PriceNotFoundException(
+                    booking.getRoomType(), booking.getBookingType()));
 
-       long nights = DAYS.between(booking.getStartDate(), booking.getEndDate());
+    long nights = DAYS.between(booking.getStartDate(), booking.getEndDate());
 
-       booking.setPricePerNight(priceConfig.nettoPrice());
-       booking.setFullPrice(priceConfig.nettoPrice().multiply(BigDecimal.valueOf(nights)));
+    booking.setPricePerNight(priceConfig.nettoPrice());
+    booking.setFullPrice(priceConfig.nettoPrice().multiply(BigDecimal.valueOf(nights)));
 
-       // Steuer: 19 → 0.19
-       BigDecimal taxRateDecimal = priceConfig.taxRate()
-               .divide(BigDecimal.valueOf(100));
-
-       BigDecimal tax = booking.getFullPrice().multiply(taxRateDecimal);
+    BigDecimal taxRateDecimal = priceConfig.taxRate().divide(BigDecimal.valueOf(100));
+    BigDecimal tax = booking.getFullPrice().multiply(taxRateDecimal);
 
     booking.setTax(tax);
     booking.setBruttoPrice(booking.getFullPrice().add(tax));
-       Booking saved = bookingRepository.save(booking);
-       emailService.sendBookingConfirmation(
-               user.email(),
-               "Ihre Buchung wurde aktualisiert",
-               "Hallo Herr" + user.lastname() + ",\n\n" +
-                       "Ihre Buchung wurde erfolgreich aktualisiert.\n" +
-                       "Neue Zimmernummer: " + booking.getRoomNumber() + "\n\n" +
-                       "Viele Grüße,\nIhr Hotel-Team"
-       );
 
+    // 8) Buchung speichern
+    Booking saved = bookingRepository.save(booking);
 
-       return saved;
+    // 9) Bestätigung senden
+    emailService.sendBookingConfirmation(
+            user.email(),
+            "Ihre Buchung wurde aktualisiert",
+            "Hallo Herr " + user.lastname() + ",\n\n" +
+                    "Ihre Buchung wurde erfolgreich aktualisiert.\n" +
+                    "Neue Zimmernummer: " + booking.getRoomNumber() + "\n\n" +
+                    "Viele Grüße,\nIhr Hotel-Team"
+    );
+
+    return saved;
 }
+
 
     // ----------------------------- // DELETE // -----------------------------
     @Transactional

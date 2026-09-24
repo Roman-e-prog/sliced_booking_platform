@@ -11,7 +11,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
-
+import com.roman.booking_service.exceptions.RoomNumberNotFoundException;
+import com.roman.booking_service.exceptions.RoomNotAvailableException;
 import java.time.LocalDateTime;
 
 @RestControllerAdvice
@@ -44,6 +45,34 @@ public class GlobalExceptionHandler {
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
+       @ExceptionHandler(RoomNumberNotFoundException.class)
+        public ResponseEntity<ApiError> handleRoomNumberNotFound(RoomNumberNotFoundException ex, WebRequest request) {
+
+        ApiError error = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.NOT_FOUND.value(),
+                HttpStatus.NOT_FOUND.name(),
+                ex.getMessage(),
+                "ROOM_NUMBER_NOT_FOUND",
+                request.getDescription(false).replace("uri=", "")
+        );
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        }
+        @ExceptionHandler(RoomNotAvailableException.class)
+        public ResponseEntity<ApiError> handleRoomNotAvailable(RoomNotAvailableException ex, WebRequest request) {
+
+        ApiError error = new ApiError(
+                LocalDateTime.now(),
+                HttpStatus.CONFLICT.value(),
+                HttpStatus.CONFLICT.name(),
+                ex.getMessage(),
+                "ROOM_NOT_AVAILABLE",
+                request.getDescription(false).replace("uri=", "")
+        );
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+        }
 
     @ExceptionHandler(InvalidException.class)
     public ResponseEntity<ApiError> handleInvalidPrice(InvalidException ex, WebRequest request) {

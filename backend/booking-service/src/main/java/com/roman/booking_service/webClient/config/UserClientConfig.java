@@ -16,11 +16,11 @@ public class UserClientConfig {
     public WebClient userWebClient() {
 
         HttpClient httpClient = HttpClient.create()
-                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 2000)
-                .responseTimeout(Duration.ofSeconds(2))
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000)
+                .responseTimeout(Duration.ofSeconds(5))
                 .doOnConnected(conn ->
-                        conn.addHandlerLast(new ReadTimeoutHandler(2))
-                                .addHandlerLast(new WriteTimeoutHandler(2))
+                        conn.addHandlerLast(new ReadTimeoutHandler(5))
+                                .addHandlerLast(new WriteTimeoutHandler(5))
                 );
 
         return WebClient.builder()

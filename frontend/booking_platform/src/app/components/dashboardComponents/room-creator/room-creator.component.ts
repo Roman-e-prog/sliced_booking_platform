@@ -89,7 +89,7 @@ export class RoomCreatorComponent {
   roomForm = new FormGroup({
     room_type: new FormControl("", Validators.required),
     description: new FormControl("", Validators.required),
-    price_per_night: new FormControl("", Validators.required),
+    price_per_night: new FormControl(""),
     images: new FormControl<File[]>([], Validators.required),
     alts: new FormControl<String[]>([], Validators.required),
     roomNumber: new FormControl<Number>(0, Validators.required),
@@ -108,18 +108,14 @@ export class RoomCreatorComponent {
       roomNumber:formValue.roomNumber,
       alts:formValue.alts
     });
-    console.log("JSON to be sent:", json);
     formData.append("data", new Blob([json], { type: "application/json" }));
-    for (const file of formValue.images!) {
-  console.log("File:", file.name, "Size:", file.size / 1024 / 1024, "MB");
-}
+
 
     // 2. Append images
     for (const file of formValue.images!) {
       formData.append("images", file);
     }
     // send to API
-    console.log("FormData to be sent:", formData);
     this.store.dispatch(createRoom({roomData: formData}))
         this.roomForm.reset()
   }

@@ -27,10 +27,12 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.WithMockUser;
 @Log4j2
-@WebMvcTest(RoomController.class)
-@AutoConfigureMockMvc(addFilters = false)
+@SpringBootTest // ❗ Lädt den ganzen Kontext stabil
+@AutoConfigureMockMvc(addFilters = false) 
+
 public class RoomSettingControllerTest {
 
     @Autowired
@@ -55,6 +57,7 @@ public class RoomSettingControllerTest {
     // CREATE ROOM
     // ---------------------------------------------------------
     @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
     void should_create_a_room() throws Exception {
 
         MockMultipartFile img1 = new MockMultipartFile(
@@ -85,7 +88,7 @@ public class RoomSettingControllerTest {
         when(roomService.createRoom(any(RoomRequest.class))).thenReturn(room);
 
         mockMvc.perform(
-                        multipart("/rooms/roomSetting")
+                        multipart("/api/rooms/")
                                 .file(img1)
                                 .file(json)
                                 .contentType(MediaType.MULTIPART_FORM_DATA)
@@ -104,6 +107,7 @@ public class RoomSettingControllerTest {
     // UPDATE ROOM (Images ersetzen)
     // ---------------------------------------------------------
     @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
     void should_update_images() throws Exception {
 
         MockMultipartFile img1 = new MockMultipartFile(
@@ -190,7 +194,7 @@ public class RoomSettingControllerTest {
 
         when(roomService.findOrThrow(1L)).thenReturn(response);
 
-        mockMvc.perform(get("/rooms/{roomId}", 1L))
+        mockMvc.perform(get("/api/rooms/{roomId}", 1L))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.room.roomId").value(1))
                 .andExpect(jsonPath("$.room.roomType").value("ONE_BED"))
@@ -235,7 +239,7 @@ public class RoomSettingControllerTest {
 
         when(roomService.findAllRooms()).thenReturn(List.of(dto1, dto2));
 
-        mockMvc.perform(get("/rooms/all"))
+        mockMvc.perform(get("/api/rooms/all"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2));
     }
@@ -244,11 +248,12 @@ public class RoomSettingControllerTest {
     // DELETE ROOM
     // ---------------------------------------------------------
     @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
     void should_delete_a_room() throws Exception {
 
         doNothing().when(roomService).deleteRoom(1L);
 
-        mockMvc.perform(delete("/rooms/{roomId}", 1L))
+        mockMvc.perform(delete("/api/rooms/{roomId}", 1L))
                 .andExpect(status().isNoContent());
 
         verify(roomService).deleteRoom(1L);
