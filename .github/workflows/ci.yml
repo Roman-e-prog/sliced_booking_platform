@@ -33,14 +33,14 @@ jobs:
             ${{ runner.os }}-maven-
 
       # ------------------------------------------------------------
-      # 1. Build & install event-models FIRST
+      # 1. Build & install EVENT-MODELS (Shared POJO Library)
       # ------------------------------------------------------------
       - name: Build event-models
         working-directory: event-models
         run: mvn -q -DskipTests install
 
       # ------------------------------------------------------------
-      # 2. Build backend services
+      # 2. Build BACKEND MICROSERVICES
       # ------------------------------------------------------------
       - name: Build user-service
         working-directory: backend/user-service
@@ -63,7 +63,7 @@ jobs:
         run: mvn -q -DskipTests package
 
       # ------------------------------------------------------------
-      # 3. Build frontend
+      # 3. Build FRONTEND
       # ------------------------------------------------------------
       - name: Build frontend
         working-directory: frontend/booking_platform
@@ -94,13 +94,19 @@ jobs:
 
       - name: Build & Push Docker Images
         run: |
+          # BACKEND MICROSERVICES
           docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-user-service:latest backend/user-service
           docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-booking-service:latest backend/booking-service
           docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-room-service:latest backend/room-service
           docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-price-service:latest backend/price-service
+
+          # API-GATEWAY
           docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-api-gateway:latest api-gateway
+
+          # FRONTEND
           docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-frontend:latest frontend/booking_platform
 
+          # PUSH IMAGES
           docker push ${{ secrets.DOCKER_USERNAME }}/sliced-backend-user-service:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/sliced-backend-booking-service:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/sliced-backend-room-service:latest
