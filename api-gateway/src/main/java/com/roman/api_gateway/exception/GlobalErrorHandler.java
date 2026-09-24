@@ -7,7 +7,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
-
+import org.springframework.http.HttpStatusCode;
 @Slf4j
 @Component
 public class GlobalErrorHandler implements ErrorWebExceptionHandler {
@@ -15,21 +15,32 @@ public class GlobalErrorHandler implements ErrorWebExceptionHandler {
     @Override
     public Mono<Void> handle(ServerWebExchange exchange, Throwable ex) {
 
-        log.error("Gateway error for request {}: {}",
-                exchange.getRequest().getURI(),
-                ex.getMessage());
+        // Stacktrace loggen
+        log.error("Gateway ERROR for request {}", exchange.getRequest().getURI(), ex);
 
-        exchange.getResponse().setStatusCode(HttpStatus.BAD_GATEWAY);
+        // Default-Status
+        HttpStatusCode statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
+
+        // ResponseStatusException korrekt behandeln
+        if (ex instanceof org.springframework.web.server.ResponseStatusException rse) {
+            statusCode = rse.getStatusCode();
+        }
+
+        exchange.getResponse().setStatusCode(statusCode);
         exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
 
         String json = """
             {
-                "status": 502,
-                "error": "Bad Gateway",
+                "status": %d,
+                "error": "%s",
+                "exception": "%s",
                 "message": "%s",
                 "path": "%s"
             }
             """.formatted(
+                statusCode.value(),
+                statusCode.toString(),
+                ex.getClass().getName(),
                 ex.getMessage(),
                 exchange.getRequest().getPath().value()
         );
@@ -42,4 +53,3 @@ public class GlobalErrorHandler implements ErrorWebExceptionHandler {
                 ));
     }
 }
-
