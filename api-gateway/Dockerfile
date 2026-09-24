@@ -39,5 +39,6 @@ COPY --from=build /build/target/*.jar app.jar
 # (Spring Boot + JVM Container Awareness)
 ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
 
+EXPOSE 8080
 # Startbefehl
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
