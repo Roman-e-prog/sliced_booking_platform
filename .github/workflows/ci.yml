@@ -17,6 +17,8 @@ jobs:
     strategy:
       matrix:
         include:
+        - service: event-models
+          repo: sliced-event-models
         - service: backend/user-service
           repo: sliced-backend-user-service
         - service: backend/booking-service
@@ -27,8 +29,6 @@ jobs:
           repo: sliced-backend-price-service
         - service: api-gateway
           repo: sliced-api-gateway
-        - service: event-models
-          repo: sliced-event-models
         - service: frontend/booking_platform
           repo: sliced-frontend
 
@@ -52,10 +52,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
+      # Wichtig: event-models wird gebaut und installiert
       - name: Build backend service
         if: startsWith(matrix.service, 'backend') || matrix.service == 'api-gateway' || matrix.service == 'event-models'
         working-directory: ${{ matrix.service }}
-        run: mvn -q -DskipTests package
+        run: mvn -q -DskipTests install
 
       - name: Build frontend
         if: startsWith(matrix.service, 'frontend')
