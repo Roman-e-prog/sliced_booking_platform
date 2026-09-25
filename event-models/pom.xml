@@ -15,6 +15,14 @@
 		<maven.compiler.target>21</maven.compiler.target>
 	</properties>
 
+	<!-- GitHub Packages als Maven-Repository -->
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <url>https://maven.pkg.github.com/Roman-e-prog/sliced_booking_platform</url>
+        </repository>
+    </distributionManagement>
+
 	<dependencies>
 		<!-- Jackson für JSON-Serialisierung/Deserialisierung -->
 		<dependency>

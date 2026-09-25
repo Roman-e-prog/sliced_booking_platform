@@ -9,9 +9,36 @@ on:
 jobs:
 
   # ============================================================
-  # 1. BUILD ALL MICROSERVICES + EVENT-MODELS + FRONTEND
+  # 1. DEPLOY EVENT-MODELS (Shared POJO Library)
+  # ============================================================
+  event_models:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      # Wichtig: GitHub Packages Login
+      - name: Authenticate to GitHub Packages
+        run: echo "//maven.pkg.github.com/Roman-e-prog/sliced_booking_platform:_authToken=${{ secrets.GITHUB_TOKEN }}" > ~/.m2/settings.xml
+
+      # Build & Deploy event-models
+      - name: Deploy event-models to GitHub Packages
+        working-directory: event-models
+        run: mvn -q -DskipTests deploy
+
+
+  # ============================================================
+  # 2. BUILD ALL MICROSERVICES + FRONTEND
   # ============================================================
   build:
+    needs: event_models
     runs-on: ubuntu-latest
 
     steps:
@@ -32,16 +59,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      # ------------------------------------------------------------
-      # 1. Build & install EVENT-MODELS (Shared POJO Library)
-      # ------------------------------------------------------------
-      - name: Build event-models
-        working-directory: event-models
-        run: mvn -q -DskipTests install
-
-      # ------------------------------------------------------------
-      # 2. Build BACKEND MICROSERVICES
-      # ------------------------------------------------------------
+      # Backend Services
       - name: Build user-service
         working-directory: backend/user-service
         run: mvn -q -DskipTests package
@@ -62,9 +80,7 @@ jobs:
         working-directory: api-gateway
         run: mvn -q -DskipTests package
 
-      # ------------------------------------------------------------
-      # 3. Build FRONTEND
-      # ------------------------------------------------------------
+      # Frontend
       - name: Build frontend
         working-directory: frontend/booking_platform
         run: |
@@ -73,7 +89,7 @@ jobs:
 
 
   # ============================================================
-  # 2. DOCKER BUILD & PUSH (ALL SERVICES + FRONTEND)
+  # 3. DOCKER BUILD & PUSH
   # ============================================================
   docker:
     needs: build
@@ -89,24 +105,15 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
       - name: Build & Push Docker Images
         run: |
-          # BACKEND MICROSERVICES
           docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-user-service:latest backend/user-service
           docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-booking-service:latest backend/booking-service
           docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-room-service:latest backend/room-service
           docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-price-service:latest backend/price-service
-
-          # API-GATEWAY
           docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-api-gateway:latest api-gateway
-
-          # FRONTEND
           docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-frontend:latest frontend/booking_platform
 
-          # PUSH IMAGES
           docker push ${{ secrets.DOCKER_USERNAME }}/sliced-backend-user-service:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/sliced-backend-booking-service:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/sliced-backend-room-service:latest
@@ -116,7 +123,7 @@ jobs:
 
 
   # ============================================================
-  # 3. DEPLOY TO SERVER (SSH)
+  # 4. DEPLOY TO SERVER
   # ============================================================
   deploy:
     needs: docker
