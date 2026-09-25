@@ -20,7 +20,7 @@
 	<!-- github Package als Maven-Repository -->
 	<repositories>
     <!-- Repository für event-models -->
-    <repository>
+		<repository>
 			<id>github</id>
 			<url>https://maven.pkg.github.com/Roman-e-prog/sliced_booking_platform</url>
 		</repository>

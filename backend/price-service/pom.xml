@@ -10,8 +10,7 @@
 	</parent>
 
 	<groupId>com.roman</groupId>
-	<artifactId>priceService
-	</artifactId>
+	<artifactId>priceService</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>priceService
 	</name>
@@ -20,16 +19,21 @@
 		<java.version>21</java.version>
 	</properties>
 	<!-- github Package als Maven-Repository -->
-	<repositories>
-    <!-- Repository für event-models -->
-    <repository>
-			<id>github</id>
-			<url>https://maven.pkg.github.com/Roman-e-prog/sliced_booking_platform</url>
-		</repository>
-	</repositories>
-
+		<repositories>
+		<!-- Repository für event-models -->
+		<repository>
+				<id>github</id>
+				<url>https://maven.pkg.github.com/Roman-e-prog/sliced_booking_platform</url>
+			</repository>
+		</repositories>
 
 	<dependencies>
+		<!-- pojo -->
+		<dependency>
+			<groupId>com.roman</groupId>
+			<artifactId>event-models</artifactId>
+			<version>1.0.0</version>
+		</dependency>
 
 		<!-- PostgreSQL -->
 		<dependency>
