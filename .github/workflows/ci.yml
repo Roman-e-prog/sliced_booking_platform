@@ -8,9 +8,6 @@ on:
 
 jobs:
 
-  # ============================================================
-  # 1. DEPLOY EVENT-MODELS (Shared POJO Library)
-  # ============================================================
   event_models:
     runs-on: ubuntu-latest
 
@@ -24,11 +21,9 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      # ~/.m2 Ordner erzeugen
       - name: Create Maven folder
         run: mkdir -p ~/.m2
 
-      # settings.xml für GitHub Packages erzeugen
       - name: Create settings.xml for GitHub Packages
         run: |
           cat <<EOF > ~/.m2/settings.xml
@@ -43,15 +38,11 @@ jobs:
           </settings>
           EOF
 
-      # event-models deployen
       - name: Deploy event-models to GitHub Packages
         working-directory: event-models
         run: mvn -q -DskipTests deploy
 
 
-  # ============================================================
-  # 2. BUILD ALL MICROSERVICES + FRONTEND
-  # ============================================================
   build:
     needs: event_models
     runs-on: ubuntu-latest
@@ -74,7 +65,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      # Backend Services
       - name: Build user-service
         working-directory: backend/user-service
         run: mvn -q -DskipTests package
@@ -95,7 +85,6 @@ jobs:
         working-directory: api-gateway
         run: mvn -q -DskipTests package
 
-      # Frontend
       - name: Build frontend
         working-directory: frontend/booking_platform
         run: |
@@ -103,9 +92,6 @@ jobs:
           npm run build
 
 
-  # ============================================================
-  # 3. DOCKER BUILD & PUSH
-  # ============================================================
   docker:
     needs: build
     runs-on: ubuntu-latest
@@ -122,12 +108,12 @@ jobs:
 
       - name: Build & Push Docker Images
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-user-service:latest backend/user-service
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-booking-service:latest backend/booking-service
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-room-service:latest backend/room-service
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-price-service:latest backend/price-service
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-api-gateway:latest api-gateway
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-frontend:latest frontend/booking_platform
+          docker build --build-arg GH_PACKAGES_TOKEN=${{ secrets.GH_PACKAGES_TOKEN }} -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-user-service:latest backend/user-service
+          docker build --build-arg GH_PACKAGES_TOKEN=${{ secrets.GH_PACKAGES_TOKEN }} -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-booking-service:latest backend/booking-service
+          docker build --build-arg GH_PACKAGES_TOKEN=${{ secrets.GH_PACKAGES_TOKEN }} -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-room-service:latest backend/room-service
+          docker build --build-arg GH_PACKAGES_TOKEN=${{ secrets.GH_PACKAGES_TOKEN }} -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-price-service:latest backend/price-service
+          docker build --build-arg GH_PACKAGES_TOKEN=${{ secrets.GH_PACKAGES_TOKEN }} -t ${{ secrets.DOCKER_USERNAME }}/sliced-api-gateway:latest api-gateway
+          docker build --build-arg GH_PACKAGES_TOKEN=${{ secrets.GH_PACKAGES_TOKEN }} -t ${{ secrets.DOCKER_USERNAME }}/sliced-frontend:latest frontend/booking_platform
 
           docker push ${{ secrets.DOCKER_USERNAME }}/sliced-backend-user-service:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/sliced-backend-booking-service:latest
@@ -137,9 +123,6 @@ jobs:
           docker push ${{ secrets.DOCKER_USERNAME }}/sliced-frontend:latest
 
 
-  # ============================================================
-  # 4. DEPLOY TO SERVER
-  # ============================================================
   deploy:
     needs: docker
     runs-on: ubuntu-latest

@@ -1,43 +1,35 @@
 ###############################################
 # 1. BUILD-STAGE
-#    Baut dein Spring-Boot-Projekt mit Maven
-#    Vorteil: Du brauchst lokal kein JDK/Maven
 ###############################################
 FROM maven:3.9.6-eclipse-temurin-21 AS build
 
-# Arbeitsverzeichnis im Build-Container
+ARG GH_PACKAGES_TOKEN
+
 WORKDIR /build
 
-# Nur pom.xml kopieren → Maven Dependencies werden gecached
-COPY pom.xml .
+# Maven settings.xml für GitHub Packages
+RUN mkdir -p /root/.m2 && \
+    echo "<settings><servers><server><id>github</id><username>Roman-e-prog</username><password>${GH_PACKAGES_TOKEN}</password></server></servers></settings>" \
+    > /root/.m2/settings.xml
 
-# Dependencies herunterladen (Cache bleibt stabil)
+COPY pom.xml .
 RUN mvn -q dependency:go-offline
 
-# Jetzt den Source-Code kopieren
 COPY src ./src
-
-# Projekt bauen (Tests optional überspringen)
 RUN mvn -q -DskipTests package
 
 
 ###############################################
 # 2. RUNTIME-STAGE
-#    Minimaler, schneller Java-21 JRE Container
-#    → kleiner, sicherer, schneller Start
 ###############################################
 FROM eclipse-temurin:21-jre
 
-# Arbeitsverzeichnis im Runtime-Container
 WORKDIR /app
 
-# Das fertige JAR aus dem Build-Container kopieren
 COPY --from=build /build/target/*.jar app.jar
 
-# Optional: JVM-Optimierungen für Container
-# (Spring Boot + JVM Container Awareness)
 ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
 
 EXPOSE 8083
-# Startbefehl
+
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
