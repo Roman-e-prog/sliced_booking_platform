@@ -38,10 +38,6 @@ jobs:
       - name: Copy user-service JAR to app.jar
         working-directory: backend/user-service
         run: cp target/*.jar app.jar
-      
-      - name: List files
-        working-directory: backend/user-service
-        run: ls -la
 
       - name: Build booking-service
         working-directory: backend/booking-service
@@ -98,12 +94,12 @@ jobs:
 
       - name: Build & Push Docker Images
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-user-service:latest backend/user-service --file backend/user-service/Dockerfile
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-booking-service:latest backend/booking-service --file backend/booking-service/Dockerfile
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-room-service:latest backend/room-service --file backend/room-service/Dockerfile
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-price-service:latest backend/price-service --file backend/price-service/Dockerfile
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-api-gateway:latest api-gateway --file api-gateway/Dockerfile
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-frontend:latest frontend/booking_platform --file frontend/booking_platform/Dockerfile
+          docker build -f backend/user-service/Dockerfile backend/user-service -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-user-service:latest
+          docker build -f backend/booking-service/Dockerfile backend/booking-service -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-booking-service:latest
+          docker build -f backend/room-service/Dockerfile backend/room-service -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-room-service:latest
+          docker build -f backend/price-service/Dockerfile backend/price-service -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-price-service:latest
+          docker build -f api-gateway/Dockerfile api-gateway -t ${{ secrets.DOCKER_USERNAME }}/sliced-api-gateway:latest
+          docker build -f frontend/booking_platform/Dockerfile frontend/booking_platform -t ${{ secrets.DOCKER_USERNAME }}/sliced-frontend:latest
 
           docker push ${{ secrets.DOCKER_USERNAME }}/sliced-backend-user-service:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/sliced-backend-booking-service:latest
