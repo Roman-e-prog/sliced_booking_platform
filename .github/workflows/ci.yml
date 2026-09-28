@@ -8,43 +8,7 @@ on:
 
 jobs:
 
-  event_models:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '21'
-
-      - name: Create Maven folder
-        run: mkdir -p ~/.m2
-
-      - name: Create settings.xml for GitHub Packages
-        run: |
-          cat <<EOF > ~/.m2/settings.xml
-          <settings>
-            <servers>
-              <server>
-                <id>github</id>
-                <username>Roman-e-prog</username>
-                <password>${{ secrets.GH_PACKAGES_TOKEN }}</password>
-              </server>
-            </servers>
-          </settings>
-          EOF
-
-      - name: Deploy event-models to GitHub Packages
-        working-directory: event-models
-        run: mvn -q -DskipTests deploy
-
-
   build:
-    needs: event_models
     runs-on: ubuntu-latest
 
     steps:
@@ -65,6 +29,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
+      # 1) event-models lokal installieren
+      - name: Build event-models (local install)
+        working-directory: event-models
+        run: mvn -q -DskipTests install
+
+      # 2) alle Services bauen (nutzen lokales ~/.m2)
       - name: Build user-service
         working-directory: backend/user-service
         run: mvn -q -DskipTests package
@@ -85,6 +55,7 @@ jobs:
         working-directory: api-gateway
         run: mvn -q -DskipTests package
 
+      # 3) Frontend bauen
       - name: Build frontend
         working-directory: frontend/booking_platform
         run: |
@@ -108,12 +79,12 @@ jobs:
 
       - name: Build & Push Docker Images
         run: |
-          docker build --build-arg GH_PACKAGES_TOKEN=${{ secrets.GH_PACKAGES_TOKEN }} -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-user-service:latest backend/user-service
-          docker build --build-arg GH_PACKAGES_TOKEN=${{ secrets.GH_PACKAGES_TOKEN }} -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-booking-service:latest backend/booking-service
-          docker build --build-arg GH_PACKAGES_TOKEN=${{ secrets.GH_PACKAGES_TOKEN }} -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-room-service:latest backend/room-service
-          docker build --build-arg GH_PACKAGES_TOKEN=${{ secrets.GH_PACKAGES_TOKEN }} -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-price-service:latest backend/price-service
-          docker build --build-arg GH_PACKAGES_TOKEN=${{ secrets.GH_PACKAGES_TOKEN }} -t ${{ secrets.DOCKER_USERNAME }}/sliced-api-gateway:latest api-gateway
-          docker build --build-arg GH_PACKAGES_TOKEN=${{ secrets.GH_PACKAGES_TOKEN }} -t ${{ secrets.DOCKER_USERNAME }}/sliced-frontend:latest frontend/booking_platform
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-user-service:latest backend/user-service
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-booking-service:latest backend/booking-service
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-room-service:latest backend/room-service
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-price-service:latest backend/price-service
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-api-gateway:latest api-gateway
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-frontend:latest frontend/booking_platform
 
           docker push ${{ secrets.DOCKER_USERNAME }}/sliced-backend-user-service:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/sliced-backend-booking-service:latest
