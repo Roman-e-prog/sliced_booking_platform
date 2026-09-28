@@ -3,6 +3,8 @@ name: CI/CD Pipeline
 on:
   push:
     branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
 
 jobs:
 
@@ -19,6 +21,14 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
       - name: Build event-models
         working-directory: event-models
         run: mvn -q -DskipTests install
@@ -27,36 +37,41 @@ jobs:
         working-directory: backend/user-service
         run: mvn -q -DskipTests package
 
-      - name: Copy user-service JAR
-        run: cp backend/user-service/target/*.jar backend/user-service/app.jar
+      - name: Copy user-service JAR to app.jar
+        working-directory: backend/user-service
+        run: cp target/*.jar app.jar
 
       - name: Build booking-service
         working-directory: backend/booking-service
         run: mvn -q -DskipTests package
 
-      - name: Copy booking-service JAR
-        run: cp backend/booking-service/target/*.jar backend/booking-service/app.jar
+      - name: Copy booking-service JAR to app.jar
+        working-directory: backend/booking-service
+        run: cp target/*.jar app.jar
 
       - name: Build room-service
         working-directory: backend/room-service
         run: mvn -q -DskipTests package
 
-      - name: Copy room-service JAR
-        run: cp backend/room-service/target/*.jar backend/room-service/app.jar
+      - name: Copy room-service JAR to app.jar
+        working-directory: backend/room-service
+        run: cp target/*.jar app.jar
 
       - name: Build price-service
         working-directory: backend/price-service
         run: mvn -q -DskipTests package
 
-      - name: Copy price-service JAR
-        run: cp backend/price-service/target/*.jar backend/price-service/app.jar
+      - name: Copy price-service JAR to app.jar
+        working-directory: backend/price-service
+        run: cp target/*.jar app.jar
 
       - name: Build api-gateway
         working-directory: api-gateway
         run: mvn -q -DskipTests package
 
-      - name: Copy api-gateway JAR
-        run: cp api-gateway/target/*.jar api-gateway/app.jar
+      - name: Copy api-gateway JAR to app.jar
+        working-directory: api-gateway
+        run: cp target/*.jar app.jar
 
       - name: Build frontend
         working-directory: frontend/booking_platform
