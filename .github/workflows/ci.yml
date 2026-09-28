@@ -92,18 +92,15 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      - name: Enable Docker Buildx
+        run: |
+          docker buildx create --use
+
       - name: Build & Push Docker Images
         run: |
-          docker build -f backend/user-service/Dockerfile backend/user-service -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-user-service:latest
-          docker build -f backend/booking-service/Dockerfile backend/booking-service -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-booking-service:latest
-          docker build -f backend/room-service/Dockerfile backend/room-service -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-room-service:latest
-          docker build -f backend/price-service/Dockerfile backend/price-service -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-price-service:latest
-          docker build -f api-gateway/Dockerfile api-gateway -t ${{ secrets.DOCKER_USERNAME }}/sliced-api-gateway:latest
-          docker build -f frontend/booking_platform/Dockerfile frontend/booking_platform -t ${{ secrets.DOCKER_USERNAME }}/sliced-frontend:latest
-
-          docker push ${{ secrets.DOCKER_USERNAME }}/sliced-backend-user-service:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/sliced-backend-booking-service:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/sliced-backend-room-service:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/sliced-backend-price-service:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/sliced-api-gateway:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/sliced-frontend:latest
+          docker buildx build -f backend/user-service/Dockerfile backend/user-service -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-user-service:latest --push
+          docker buildx build -f backend/booking-service/Dockerfile backend/booking-service -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-booking-service:latest --push
+          docker buildx build -f backend/room-service/Dockerfile backend/room-service -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-room-service:latest --push
+          docker buildx build -f backend/price-service/Dockerfile backend/price-service -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-price-service:latest --push
+          docker buildx build -f api-gateway/Dockerfile api-gateway -t ${{ secrets.DOCKER_USERNAME }}/sliced-api-gateway:latest --push
+          docker buildx build -f frontend/booking_platform/Dockerfile frontend/booking_platform -t ${{ secrets.DOCKER_USERNAME }}/sliced-frontend:latest --push
