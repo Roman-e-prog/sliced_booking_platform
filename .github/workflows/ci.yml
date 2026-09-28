@@ -34,7 +34,7 @@ jobs:
         working-directory: event-models
         run: mvn -q -DskipTests install
 
-      # 2) alle Services bauen (nutzen lokales ~/.m2)
+      # 2) alle Services bauen
       - name: Build user-service
         working-directory: backend/user-service
         run: mvn -q -DskipTests package
@@ -82,7 +82,7 @@ jobs:
           docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-user-service:latest backend/user-service
           docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-booking-service:latest backend/booking-service
           docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-room-service:latest backend/room-service
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-price-service:latest backend/price-service
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-price-service:latest backend-price-service
           docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-api-gateway:latest api-gateway
           docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-frontend:latest frontend/booking_platform
 
@@ -92,22 +92,3 @@ jobs:
           docker push ${{ secrets.DOCKER_USERNAME }}/sliced-backend-price-service:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/sliced-api-gateway:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/sliced-frontend:latest
-
-
-  deploy:
-    needs: docker
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
-
-    steps:
-      - name: SSH into server and deploy
-        uses: appleboy/ssh-action@v0.1.6
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          script: |
-            cd /home/roman/booking-platform
-            git pull
-            docker compose pull
-            docker compose up -d
