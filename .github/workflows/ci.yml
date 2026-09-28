@@ -3,8 +3,6 @@ name: CI/CD Pipeline
 on:
   push:
     branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
 
 jobs:
 
@@ -40,6 +38,10 @@ jobs:
       - name: Copy user-service JAR to app.jar
         working-directory: backend/user-service
         run: cp target/*.jar app.jar
+      
+      - name: List files
+        working-directory: backend/user-service
+        run: ls -la
 
       - name: Build booking-service
         working-directory: backend/booking-service
@@ -96,12 +98,12 @@ jobs:
 
       - name: Build & Push Docker Images
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-user-service:latest backend/user-service
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-booking-service:latest backend/booking-service
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-room-service:latest backend/room-service
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-price-service:latest backend/price-service
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-api-gateway:latest api-gateway
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-frontend:latest frontend/booking_platform
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-user-service:latest backend/user-service --file backend/user-service/Dockerfile
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-booking-service:latest backend/booking-service --file backend/booking-service/Dockerfile
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-room-service:latest backend/room-service --file backend/room-service/Dockerfile
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-price-service:latest backend/price-service --file backend/price-service/Dockerfile
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-api-gateway:latest api-gateway --file api-gateway/Dockerfile
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-frontend:latest frontend/booking_platform --file frontend/booking_platform/Dockerfile
 
           docker push ${{ secrets.DOCKER_USERNAME }}/sliced-backend-user-service:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/sliced-backend-booking-service:latest
