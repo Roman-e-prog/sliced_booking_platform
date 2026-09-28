@@ -29,12 +29,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      # 1) event-models lokal installieren
-      - name: Build event-models (local install)
+      - name: Build event-models
         working-directory: event-models
         run: mvn -q -DskipTests install
 
-      # 2) alle Services bauen
       - name: Build user-service
         working-directory: backend/user-service
         run: mvn -q -DskipTests package
@@ -55,7 +53,6 @@ jobs:
         working-directory: api-gateway
         run: mvn -q -DskipTests package
 
-      # 3) Frontend bauen
       - name: Build frontend
         working-directory: frontend/booking_platform
         run: |
@@ -82,7 +79,7 @@ jobs:
           docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-user-service:latest backend/user-service
           docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-booking-service:latest backend/booking-service
           docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-room-service:latest backend/room-service
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-price-service:latest backend-price-service
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-backend-price-service:latest backend/price-service
           docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-api-gateway:latest api-gateway
           docker build -t ${{ secrets.DOCKER_USERNAME }}/sliced-frontend:latest frontend/booking_platform
 
